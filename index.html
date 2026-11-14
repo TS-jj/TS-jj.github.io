@@ -21,7 +21,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body { background: var(--paper); color: var(--ink); font-family: system-ui, "Microsoft YaHei", "PingFang SC", sans-serif; line-height: 1.6; padding-bottom: 72px; }
-  body.building { overflow: hidden; }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
 
   .nav { display: flex; align-items: center; height: 64px; border-bottom: 1px solid var(--line); }
@@ -63,7 +62,6 @@
   .card:hover .cover-img { transform: scale(1.045); }
   .card:hover .cover-scrim { opacity: .55; }
   .card:hover .cover-go { opacity: 1; transform: none; }
-  .card.spotlight { border-color: var(--violet); background: #faf9ff; box-shadow: 0 0 0 3px rgba(83,74,183,.13); }
 
   /* 封面就是作品自己的首屏截图，16:9 满铺，只加一层极淡的压暗和悬停提示 */
   .cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--line); background: #14120f; }
@@ -457,7 +455,6 @@ function showAll() {
   const roleEl = document.getElementById('heroRole');
   if (nameEl) nameEl.innerHTML = '你好，我是 <em>' + PROFILE.name + '</em>';
   if (roleEl) roleEl.textContent = PROFILE.grade + ' · ' + PROFILE.focus;
-  document.body.classList.remove('building');
 }
 
 /* ---- 背景音乐 ----
