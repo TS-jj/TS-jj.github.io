@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汤硕 · 作品集 | 前端交互与创意视觉</title>
+<meta name="description" content="汤硕的作品集：心理测试、互动叙事、手势粒子、品牌落地页、旅行影集等 9 个网页作品，全部可在线访问。">
+<meta name="theme-color" content="#fbfaf7">
+<meta property="og:type" content="website">
+<meta property="og:title" content="汤硕 · 作品集">
+<meta property="og:description" content="9 个可在线体验的网页作品：心理测试、互动叙事、手势粒子、品牌落地页与旅行影集。">
+<meta property="og:image" content="covers/cover-06.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23534ab7'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --ink: #1d1c1a; --muted: #6b6962; --faint: #a5a29a;
+    --line: #e7e4dc; --paper: #fbfaf7; --card: #ffffff;
+    --violet: #534ab7; --violet-soft: #eeedfe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: system-ui, "Microsoft YaHei", "PingFang SC", sans-serif; line-height: 1.6; padding-bottom: 72px; }
+  body.building { overflow: hidden; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  .nav { display: flex; align-items: center; height: 64px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; letter-spacing: .5px; }
+  .brand-mark { width: 26px; height: 26px; border-radius: 8px; background: var(--violet); }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; }
+  .nav-links a { color: var(--muted); font-size: 14px; text-decoration: none; }
+  .nav-links a:hover { color: var(--violet); }
+  .nav-badge { font-size: 12px; color: var(--violet); background: var(--violet-soft); padding: 5px 12px; border-radius: 999px; margin-left: 22px; }
+
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding: 30px 0 26px; }
+  .kicker { font-size: 13px; letter-spacing: 2px; color: var(--violet); font-weight: 600; min-height: 1.5em; }
+  h1 { font-size: clamp(38px, 5vw, 60px); letter-spacing: -1.5px; line-height: 1.15; margin-top: 12px; min-height: 1.2em; }
+  h1 em { font-style: normal; color: var(--violet); }
+  .role { font-size: clamp(16px, 1.8vw, 22px); margin-top: 10px; min-height: 1.5em; }
+  .intro { color: var(--muted); font-size: 15px; max-width: 520px; margin-top: 14px; min-height: 4.2em; }
+  .actions { display: flex; gap: 12px; margin-top: 20px; }
+  .btn { display: inline-block; font-size: 14px; padding: 11px 22px; border-radius: 9px; text-decoration: none; }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  .art-box { position: relative; width: 100%; aspect-ratio: 16 / 10.5; border-radius: 16px; overflow: hidden; background: #0a0908; box-shadow: 0 18px 44px -22px rgba(10,9,8,.55); }
+  #garden { display: block; width: 100%; height: 100%; cursor: crosshair; }
+  .art-hint { position: absolute; right: 10px; top: 10px; padding: 6px 9px; border-radius: 7px; background: rgba(10,9,8,.8); border: 1px solid rgba(246,240,227,.09); font-size: 10px; line-height: 1.55; letter-spacing: .08em; color: rgba(246,240,227,.6); pointer-events: none; text-transform: uppercase; }
+  .art-hint i { display: block; font-style: normal; font-size: 8px; letter-spacing: .08em; color: rgba(0,255,255,.6); }
+  .art-hint span { display: block; }
+  .art-hint b { font-weight: 500; color: rgba(255,157,187,.85); }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 2px 0 14px; }
+  .section-label { font-size: 13px; letter-spacing: 2px; color: var(--faint); }
+  .rebuild-tip { font-size: 12px; color: var(--violet); background: var(--violet-soft); padding: 5px 12px; border-radius: 999px; }
+  .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 34px; }
+  .card { position: relative; overflow: hidden; display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 0; text-decoration: none; color: inherit; transition: border-color .25s ease, background .25s ease, box-shadow .25s ease, transform .3s ease; }
+  .card::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 0; background: var(--accent, var(--violet)); transition: height .32s cubic-bezier(.3,.8,.3,1); z-index: 2; }
+  .card:hover { border-color: var(--accent, var(--violet)); box-shadow: 0 16px 30px -22px var(--accent, var(--violet)); transform: translateY(-3px); }
+  .card:hover::before { height: 100%; }
+  .card:hover .kind { background: var(--accent, var(--violet)); color: #fff; }
+  .card:hover .open { color: var(--accent, var(--violet)); }
+  .card:hover .cover-img { transform: scale(1.045); }
+  .card:hover .cover-scrim { opacity: .55; }
+  .card:hover .cover-go { opacity: 1; transform: none; }
+  .card.spotlight { border-color: var(--violet); background: #faf9ff; box-shadow: 0 0 0 3px rgba(83,74,183,.13); }
+
+  /* 封面就是作品自己的首屏截图，16:9 满铺，只加一层极淡的压暗和悬停提示 */
+  .cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--line); background: #14120f; }
+  .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform .7s cubic-bezier(.3,.8,.3,1); }
+  .cover-scrim { position: absolute; inset: 0; pointer-events: none; opacity: .85; transition: opacity .4s ease;
+    background: linear-gradient(180deg, rgba(12,10,8,.1) 0%, rgba(12,10,8,0) 40%, rgba(12,10,8,.3) 100%); }
+  .cover-go { position: absolute; right: 11px; bottom: 11px; display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 11px; border-radius: 999px; font-size: 11px; line-height: 1; color: #fff;
+    background: rgba(12,10,8,.66); box-shadow: inset 0 0 0 1px rgba(255,255,255,.26);
+    opacity: 0; transform: translateY(5px); transition: opacity .26s ease, transform .26s ease; }
+  .card-body { padding: 14px 15px 15px; }
+  .card-meta { display: flex; align-items: center; gap: 7px; font-size: 10.5px; letter-spacing: .14em; color: var(--faint); margin-bottom: 7px; text-transform: uppercase; }
+  .card-meta .idx { color: var(--accent, var(--violet)); font-weight: 700; letter-spacing: .06em; }
+  .card-meta .dash { opacity: .45; }
+  .card h3 { font-size: 16px; margin: 0 0 7px; letter-spacing: -.3px; }
+  .card p { font-size: 12px; color: var(--muted); min-height: 4.5em; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .tag { font-size: 11px; color: var(--muted); background: #f2f1ed; padding: 3px 8px; border-radius: 5px; }
+  .open { display: inline-block; font-size: 12px; color: var(--violet); margin-top: 12px; }
+
+  .below { border-top: 1px solid var(--line); padding: 40px 0 56px; }
+  .below-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .below h2 { font-size: 22px; margin-bottom: 14px; }
+  .skill-list { display: flex; flex-wrap: wrap; gap: 9px; }
+  .skill { font-size: 13px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; }
+  .contact p { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .contact a { color: var(--violet); text-decoration: none; }
+  footer { border-top: 1px solid var(--line); padding: 22px 0 40px; font-size: 12px; color: var(--faint); display: flex; justify-content: space-between; gap: 16px; }
+
+  .pending { opacity: 0; }
+  .shown { opacity: 1; transition: opacity .4s ease; }
+
+  #cursorLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9000; }
+  .cursor { position: fixed; display: flex; align-items: flex-start; gap: 2px; opacity: 0; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1), opacity .35s ease; }
+  .cursor.on { opacity: 1; }
+  .cursor .tag-name { color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-top: 15px; white-space: nowrap; }
+
+  .fx { position: fixed; pointer-events: none; z-index: 8999; }
+  .outline { border: 2px solid var(--violet); border-radius: 10px; transition: width .55s ease, height .55s ease; }
+  .measure { background: var(--violet); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; transform: translateY(-110%); white-space: nowrap; }
+  .guide { width: 2px; background: #d85a30; opacity: .6; transition: height .45s ease; }
+  .caret { display: inline-block; width: 2px; height: 1em; background: var(--violet); vertical-align: -.14em; animation: blink .8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  #controls { position: fixed; right: 22px; bottom: 22px; z-index: 9500; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 44px); }
+  #controls button {
+    font: 12px system-ui, "Microsoft YaHei", sans-serif; color: #fff;
+    background: rgba(29,28,26,.86); border: 0; border-radius: 999px;
+    padding: 8px 15px; cursor: pointer;
+  }
+  #controls button:hover { background: var(--violet); }
+  #nativeBtn { background: #534ab7 !important; }
+  #nativeBtn.on { background: #d85a30 !important; box-shadow: 0 8px 22px -8px rgba(216,90,48,.9); }
+  #controls.native-min button:not(#nativeBtn) { display: none; }
+  #controls.capturing { display: none !important; }
+
+  /* 自动退出时的提示条 */
+  .toast {
+    position: fixed; left: 50%; bottom: 74px; z-index: 9600;
+    transform: translate(-50%, 10px); opacity: 0;
+    padding: 10px 18px; border-radius: 999px;
+    font: 12px/1.4 system-ui, "Microsoft YaHei", sans-serif; color: #f6f0e3;
+    background: rgba(29,28,26,.92); box-shadow: 0 12px 30px -14px rgba(0,0,0,.6);
+    pointer-events: none; transition: opacity .3s ease, transform .3s ease;
+    max-width: calc(100vw - 40px); text-align: center;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 980px) {
+    .projects { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    /* 手机上画面小，标签会压住花，交给正文说明就够 */
+    .art-hint { display: none; }
+    .wrap { padding: 0 18px; }
+    .nav-links { display: none; }
+    .nav-badge { margin-left: auto; }
+    .hero { grid-template-columns: 1fr; gap: 22px; padding: 24px 0 6px; }
+    .art-box { max-width: 460px; }
+    .projects { grid-template-columns: 1fr; gap: 16px; }
+    .section-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .below-grid { grid-template-columns: 1fr; gap: 28px; }
+    h1 { font-size: 34px; }
+    .card h3 { font-size: 16px; }
+    .card p { min-height: 0; }
+    .open { margin-top: 10px; padding: 4px 0; }
+    .tag { padding: 4px 9px; }
+    footer { flex-direction: column; gap: 8px; }
+
+    /* 底部操作条：四个按钮等分一行，留出 iPhone 底部安全区 */
+    body { padding-bottom: 96px; }
+    #controls {
+      left: 12px; right: 12px; justify-content: stretch;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      max-width: none; gap: 6px; flex-wrap: nowrap;
+    }
+    #controls button {
+      flex: 1 1 0; min-width: 0; min-height: 44px; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; padding: 0 4px; text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* 正文里的按钮和链接也要够大，手机上才点得准 */
+    .btn { min-height: 44px; display: inline-flex; align-items: center; }
+    .open { padding: 8px 0; }
+    footer { padding-bottom: 12px; }
+    .toast { bottom: calc(84px + env(safe-area-inset-bottom)); font-size: 11.5px; padding: 9px 14px; }
+    .rebuild-tip { font-size: 11px; padding: 6px 11px; line-height: 1.5; }
+  }
+  @media (hover: none) {
+    /* 触屏没有 hover，用按下反馈代替 */
+    .card:active { transform: scale(.995); border-color: var(--accent, var(--violet)); }
+    #controls button:active { background: var(--violet); }
+  }
+</style>
+</head>
+<body>
+
+<div id="controls">
+  <button id="soundBtn" type="button">声音：开</button>
+  <button id="tourBtn" type="button">光标巡演</button>
+  <button id="nativeBtn" type="button">原生引擎重建</button>
+  <button id="actionBtn" type="button">跳过</button>
+</div>
+
+<div id="app"></div>
+<div id="cursorLayer"></div>
+
+<script>
+/* ===== 作品信息都在这里，改这一段即可 ===== */
+const PROFILE = {
+  name: '汤硕',
+  school: '河南科技大学 · 软件学院',
+  grade: '软件工程 2024 级本科生',
+  focus: '前端交互 · 创意视觉实验',
+  intro: '做过心理测试、互动叙事、手势粒子、品牌落地页和旅行影集。那块会动的粒子花就是三个作品的合体：花瓣开合来自指尖花，按住凝聚 / 推开扩散来自手势粒子，点一下吹散来自蒲公英。',
+  location: '河南 · 洛阳',
+  github: 'https://github.com/TS-jj',
+  email: '',
+  rebuildTip: '打开任意作品后按 Alt+Shift+S，可用 Swarm Rebuild 把那一页重新搭一遍',
+  projects: [
+    { no: '01', kind: '心理测试', title: '分手后你是怎样的人', desc: '25 道题、8 个维度、8 种结局，逐题作答后可看其他类型、分享与保存结果图。', tags: ['问卷逻辑', '结果页', '分享存图'], url: 'https://ts-jj.github.io/lovei-breakup-test/', accent: '#e05a6d' },
+    { no: '02', kind: '互动小游戏', title: '传送门战场', desc: '以传送门与竞技场为主题的小游戏入口，围绕空间传送与对抗展开。', tags: ['小游戏', '交互', '场景'], url: 'https://ts-jj.github.io/portal-arena/', accent: '#ff6a5a' },
+    { no: '03', kind: '品牌落地页', title: '柠境 · 阿马尔菲柠檬园', desc: '现摘即达的产地叙事，商品加减、已选清单合计与邮件咨询表单。', tags: ['视觉叙事', '清单', '表单'], url: 'https://ts-jj.github.io/ningjing-orchard/', accent: '#c9a800' },
+    { no: '04', kind: '互动叙事', title: '别让它睡着', desc: '一只猫的九幕通宵，20:40 到 05:41，每幕一个选择，结尾生成今夜回执。', tags: ['分支叙事', '时间轴', '存图'], url: 'https://ts-jj.github.io/night-html/', accent: '#c99b52' },
+    { no: '05', kind: '视觉实验', title: '放飞一颗蒲公英', desc: '点击屏幕，把一颗写满心愿的蒲公英吹散，轻到只剩一个动作的互动小品。', tags: ['粒子', '点击交互'], url: 'https://x67.top/pgy/', accent: '#5b93c4' },
+    { no: '06', kind: '视觉实验', title: '指尖花 Fingertip Bloom', desc: '摄像头识别握拳与张掌，控制花苞收拢、花瓣跟随，可换色、全屏与保存。', tags: ['手势识别', '花开动画', '换色'], url: 'https://ts-jj.github.io/fingertip-bloom/?v=5', accent: '#ff5f8a' },
+    { no: '07', kind: '图文影集', title: '远页 YUANYE JOURNAL', desc: '把路走成一册薄书：雾岭、江渡、海岬、雪村四章，配影版与尾注。', tags: ['章节叙事', '摄影排版', '翻页'], url: 'https://TS-jj.github.io/yuanye-journal/', accent: '#718087' },
+    { no: '08', kind: '视觉实验', title: '手势控制 3D 粒子系统', desc: '捏合凝聚、张掌扩散，用摄像头驱动实时粒子，摄像头不可用时可滑块手动控制。', tags: ['3D 粒子', '手势识别', '实时反馈'], url: 'https://TS-jj.github.io/gesture-particles/', accent: '#7b5cd6' },
+    { no: '09', kind: '互动叙事', title: '给20岁自己的生活建议', desc: '一封要拆开的信，关于学习、生活、感情与人生选择；可目录跳转、随机抽句、存图或打印。', tags: ['拆信动效', '长文阅读', '背景音乐'], url: 'https://ts-jj.github.io/letter-to-20s/', accent: '#d4634c' }
+  ],
+  skills: ['HTML / CSS', 'JavaScript', 'Canvas 动画', '手势识别', '互动叙事', '响应式', 'GitHub Pages', 'Flask', 'Python', 'Git']
+};
+/* ========================================== */
+
+const AGENTS = [
+  { name: 'Ada',      color: '#534ab7' },
+  { name: 'Linus',    color: '#d85a30' },
+  { name: 'Grace',    color: '#1d9e75' },
+  { name: 'Alan',     color: '#378add' },
+  { name: 'Margaret', color: '#d4537e' },
+  { name: 'Ken',      color: '#ba7517' }
+];
+const SCALE = [329.63, 369.99, 415.30, 493.88, 554.37, 659.25];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const app = document.getElementById('app');
+/* 手机上原生引擎要滚动快照整页，帧率撑不住，默认走自研的轻量开场；?native=1 可强制开启 */
+const MOBILE = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches;
+const layer = document.getElementById('cursorLayer');
+const soundBtn = document.getElementById('soundBtn');
+const tourBtn = document.getElementById('tourBtn');
+const nativeBtn = document.getElementById('nativeBtn');
+const actionBtn = document.getElementById('actionBtn');
+let token = 0, playing = false;
+
+const Sound = {
+  on: true, ctx: null, armed: false,
+  /* 浏览器要求音频必须在一次真实交互后才允许播放，所以先解除静音、等第一次点击/按键再真的发声 */
+  unlock() {
+    if (!this.on) return;
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { return; }
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (!this.armed && this.ctx.state === 'running') { this.armed = true; this.chime(2); }
+  },
+  enable() {
+    this.on = true;
+    this.unlock();
+  },
+  tone(freq, dur, type, vol) {
+    if (!this.on || !this.ctx || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(t); osc.stop(t + dur);
+  },
+  tick() { this.tone(760 + Math.random() * 120, 0.035, 'square', 0.025); },
+  chime(i) { this.tone(SCALE[((i % SCALE.length) + SCALE.length) % SCALE.length], 0.42, 'sine', 0.055); }
+};
+
+/* 第一次点击 / 按键就把音频解锁，之后所有动画音效都直接响 */
+['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
+  window.addEventListener(ev, () => Sound.unlock(), { passive: true })
+);
+
+/* ============================================================
+   粒子花园 —— 把三个作品的交互语言搬进首页：
+   · 指尖花 Fingertip Bloom  粉色花瓣，指针靠近就张开
+   · 手势粒子 Gesture Particles  按住凝聚、推开扩散
+   · 放飞一颗蒲公英    点一下从中心炸开、飘散
+   配色直接取自那几页的源码（#ff5f8a / #ff9dbb / #00ffff / #e9c68b）
+   ============================================================ */
+let gardenApi = null;
+
+function startGarden() {
+  const cv = document.getElementById('garden');
+  if (!cv || !cv.getContext) return;
+  if (gardenApi && gardenApi.stop) gardenApi.stop();
+  const ctx = cv.getContext('2d');
+  const soft = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 1, H = 1, cx = 1, cy = 1, dpr = 1, raf = 0, t0 = performance.now();
+  const P = [];
+  const ptr = { x: -999, y: -999, in: false, down: false };
+
+  const mk = (x, y, c, r) => ({ hx: x, hy: y, x: x, y: y, vx: 0, vy: 0, c: c, r: r, ph: Math.random() * 6.2832 });
+
+  function makeParticles() {
+    P.length = 0;
+    const R = Math.min(W, H) * (W < 520 ? 0.34 : 0.40);
+    for (let k = 0; k < 6; k++) {                       /* 六片花瓣（纺锤形填充） */
+      const a = (k / 6) * Math.PI * 2 - Math.PI / 2;
+      for (let j = 0; j < 34; j++) {
+        const t = j / 33;
+        const rr = R * (0.22 + t * 0.78);
+        const w = Math.sin(t * Math.PI) * R * 0.17;
+        const side = (Math.random() - 0.5) * 2 * w;
+        P.push(mk(cx + Math.cos(a) * rr - Math.sin(a) * side,
+                  cy + Math.sin(a) * rr + Math.cos(a) * side,
+                  t > 0.55 ? '#ff9dbb' : '#ff5f8a', 1 + Math.random() * 1.5));
+      }
+    }
+    for (let j = 0; j < 62; j++) {                      /* 花心 */
+      const a = Math.random() * 6.2832, rr = R * Math.pow(Math.random(), 1.7) * 0.26;
+      P.push(mk(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, '#ffd9e6', 0.7 + Math.random() * 1.2));
+    }
+    for (let j = 0; j < 96; j++) {                      /* 外圈青色粒子 */
+      const a = Math.random() * 6.2832, rr = R * (0.98 + Math.random() * 0.46);
+      P.push(mk(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.9, '#00ffff', 0.6 + Math.random() * 1.1));
+    }
+    for (let j = 0; j < 26; j++) {                      /* 琥珀星点 */
+      P.push(mk(Math.random() * W, Math.random() * H, '#e9c68b', 0.45 + Math.random() * 0.7));
+    }
+  }
+
+  function resize() {
+    const b = cv.getBoundingClientRect();
+    const w = Math.max(1, b.width), h = Math.max(1, b.height);
+    if (Math.abs(w - W) < 2 && Math.abs(h - H) < 2) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = w; H = h;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = H * 0.5;
+    ctx.fillStyle = '#0a0908'; ctx.fillRect(0, 0, W, H);
+    makeParticles();
+  }
+
+  function burst(x, y) {
+    const ox = x == null ? cx : x, oy = y == null ? cy : y;
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      const dx = p.x - ox, dy = p.y - oy;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const f = 5 + Math.random() * 8;
+      p.vx += (dx / d) * f;
+      p.vy += (dy / d) * f;
+    }
+    Sound.chime(3);
+  }
+
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(10,9,8,0.14)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      const hx = p.hx + Math.sin(t * 0.8 + p.ph) * 2.6;
+      const hy = p.hy + Math.cos(t * 0.66 + p.ph) * 2.6;
+      p.vx += (hx - p.x) * 0.014;
+      p.vy += (hy - p.y) * 0.014;
+      if (ptr.in) {
+        const dx = p.x - ptr.x, dy = p.y - ptr.y;
+        const d2 = dx * dx + dy * dy;
+        const R = 118;
+        if (d2 < R * R) {
+          const d = Math.sqrt(d2) || 1;
+          const f = (1 - d / R) * (ptr.down ? 2.8 : 3.6);
+          if (ptr.down) { p.vx -= (dx / d) * f; p.vy -= (dy / d) * f; }
+          else { p.vx += (dx / d) * f; p.vy += (dy / d) * f; }
+        }
+      }
+      p.vx *= 0.925; p.vy *= 0.925;
+      p.x += p.vx; p.y += p.vy;
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = 0.10;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3.2, 0, 6.2832); ctx.fill();
+      ctx.globalAlpha = Math.min(1, 0.38 + p.r * 0.26);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+
+  const at = (e) => {
+    const b = cv.getBoundingClientRect();
+    return { x: e.clientX - b.left, y: e.clientY - b.top };
+  };
+  cv.addEventListener('pointermove', (e) => { const p = at(e); ptr.x = p.x; ptr.y = p.y; ptr.in = true; });
+  cv.addEventListener('pointerleave', () => { ptr.in = false; ptr.down = false; });
+  cv.addEventListener('pointerdown', (e) => { ptr.down = true; const p = at(e); ptr.x = p.x; ptr.y = p.y; ptr.in = true; burst(p.x, p.y); });
+  window.addEventListener('pointerup', () => { ptr.down = false; });
+
+  resize();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+  else window.addEventListener('resize', resize);
+
+  if (soft) { frame(performance.now() + 16); cancelAnimationFrame(raf); }
+  else raf = requestAnimationFrame(frame);
+  t0 = performance.now();
+
+  gardenApi = {
+    burst: () => burst(),
+    stop: () => cancelAnimationFrame(raf),
+  };
+}
+
+/* 九个作品的首屏截图封面，已统一为 16:9 输出到 covers/ */
+const COVERS = ['01', '02', '03', '04', '05', '06', '07', '08', '09'];
+
+function render() {
+  const p = PROFILE;
+  const cards = p.projects.map((x, i) => {
+    return '<a class="card pending" data-card' + (i >= 3 ? ' data-extra' : '') + ' style="--accent:' + x.accent + '" href="' + x.url + '" target="_blank" rel="noopener">' +
+      '<div class="cover">' +
+        '<img class="cover-img" src="covers/cover-' + (COVERS[i] || '01') + '.jpg" alt="' + x.title + ' 首屏封面" decoding="async">' +
+        '<div class="cover-scrim"></div>' +
+        '<span class="cover-go">打开作品 ↗</span></div>' +
+      '<div class="card-body">' +
+        '<div class="card-meta"><span class="idx">' + x.no + '</span><span class="dash">/</span><span>' + x.kind + '</span></div>' +
+        '<h3>' + x.title + '</h3><p>' + x.desc + '</p>' +
+        '<div class="tags">' + x.tags.map(t => '<span class="tag">' + t + '</span>').join('') + '</div>' +
+        '<span class="open">打开作品 ↗</span></div>' +
+    '</a>';
+  }).join('');
+  const skills = p.skills.map(s => '<span class="skill pending" data-skill>' + s + '</span>').join('');
+  const emailLine = p.email ? '<p class="pending" data-below>邮箱：<a href="mailto:' + p.email + '">' + p.email + '</a></p>' : '';
+
+  app.innerHTML =
+    '<header class="wrap nav"><div class="brand pending" data-nav><span class="brand-mark"></span>' + p.name + ' · Portfolio</div>' +
+      '<div class="nav-links pending" data-nav><a href="#projects">项目</a><a href="#skills">技能</a><a href="#about">关于</a><a href="#contact">联系</a></div>' +
+      '<span class="nav-badge pending" data-nav>' + p.grade + '</span></header>' +
+    '<main class="wrap">' +
+      '<section class="hero">' +
+        '<div>' +
+          '<div class="kicker pending" data-hero>HELLO, WORLD</div>' +
+          '<h1 id="heroName"></h1>' +
+          '<div class="role" id="heroRole"></div>' +
+          '<p class="intro pending" data-hero>' + p.intro + '</p>' +
+          '<div class="actions pending" data-hero><a class="btn btn-primary" href="#projects">查看项目</a><a class="btn btn-ghost" href="#contact">联系我</a></div>' +
+        '</div>' +
+        '<div class="art-box" data-art>' +
+          '<canvas id="garden" aria-label="粒子花园：把指针推过去会散开，按住会凝聚，点一下会被吹散"></canvas>' +
+          '<div class="art-hint"><i>Fingertip Bloom × Gesture Particles × Dandelion</i><span>推开 <b>散</b> · 按住 <b>聚</b> · 点击 <b>吹散</b></span></div>' +
+        '</div>' +
+      '</section>' +
+      '<section id="projects">' +
+        '<div class="section-head"><div class="section-label pending" data-label>SELECTED WORK · ' + p.projects.length + ' 个作品</div>' +
+          '<span class="rebuild-tip pending" data-label>' + p.rebuildTip + '</span></div>' +
+        '<div class="projects">' + cards + '</div>' +
+      '</section>' +
+      '<section class="below" id="about">' +
+        '<div class="below-grid">' +
+          '<div id="skills"><h2 class="pending" data-below>技能栈</h2><div class="skill-list">' + skills + '</div></div>' +
+          '<div class="contact" id="contact"><h2 class="pending" data-below>关于与联系</h2>' +
+            '<p class="pending" data-below>' + p.school + ' · ' + p.location + '</p>' + emailLine +
+            '<p class="pending" data-below>GitHub：<a href="' + p.github + '" target="_blank" rel="noopener">' + p.github + '</a></p>' +
+            '<p class="pending" data-below>作品均为个人开发，托管于 GitHub Pages</p>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+      '<footer><span>© 2026 ' + p.name + '</span><span>' + p.projects.length + ' 个作品 · Built with a swarm of cursors</span></footer>' +
+    '</main>';
+  startGarden();
+}
+
+function show(sel, delay) {
+  document.querySelectorAll(sel).forEach((el, i) => setTimeout(() => {
+    el.classList.remove('pending'); el.classList.add('shown');
+  }, (delay || 0) + i * 70));
+}
+
+function showAll() {
+  document.querySelectorAll('.pending').forEach(el => { el.classList.remove('pending'); el.classList.add('shown'); });
+  const nameEl = document.getElementById('heroName');
+  const roleEl = document.getElementById('heroRole');
+  if (nameEl) nameEl.innerHTML = '你好，我是 <em>' + PROFILE.name + '</em>';
+  if (roleEl) roleEl.textContent = PROFILE.grade + ' · ' + PROFILE.focus;
+  document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
+  document.body.classList.remove('building');
+  playing = false;
+  actionBtn.textContent = '重播';
+}
+
+function makeCursors() {
+  layer.innerHTML = '';
+  const W = innerWidth, H = innerHeight;
+  return AGENTS.map((a, i) => {
+    const el = document.createElement('div');
+    el.className = 'cursor';
+    el.innerHTML = '<svg width="16" height="20" viewBox="0 0 18 22"><path d="M1 1 L1 18 L5.5 14 L8.5 20.5 L11.5 19 L8.5 12.5 L14.5 12.5 Z" fill="' + a.color + '" stroke="#ffffff" stroke-width="1"/></svg><span class="tag-name" style="background:' + a.color + '">' + a.name + '</span>';
+    layer.appendChild(el);
+    el.style.left = (i % 2 ? W + 40 : -60) + 'px';
+    el.style.top = (H * (0.14 + i * 0.13)) + 'px';
+    return { el: el, color: a.color };
+  });
+}
+
+function move(c, x, y) { c.el.style.left = x + 'px'; c.el.style.top = y + 'px'; }
+function rect(sel) { const r = document.querySelector(sel).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+
+function fxNode(cls, css) {
+  const n = document.createElement('div');
+  n.className = 'fx ' + cls; n.style.cssText = css;
+  document.body.appendChild(n); return n;
+}
+
+async function typeInto(el, text, speed, t) {
+  el.innerHTML = '';
+  const caret = document.createElement('span');
+  caret.className = 'caret'; el.appendChild(caret);
+  for (const ch of text) {
+    if (t !== token) return;
+    caret.insertAdjacentText('beforebegin', ch);
+    Sound.tick();
+    await sleep(speed);
+  }
+  caret.remove();
+}
+
+async function drawBox(target, label, t) {
+  if (t !== token) return;
+  const outline = fxNode('outline', 'left:' + target.x + 'px;top:' + target.y + 'px;width:0;height:0');
+  const badge = fxNode('measure', 'left:' + target.x + 'px;top:' + target.y + 'px');
+  badge.textContent = label || ('W ' + Math.round(target.w) + ' × H ' + Math.round(target.h));
+  requestAnimationFrame(() => { outline.style.width = target.w + 'px'; outline.style.height = target.h + 'px'; });
+  await sleep(600);
+  Sound.chime(Math.round(target.w / 60));
+  outline.remove(); badge.remove();
+}
+
+async function build() {
+  /* 手机上默认直接显示（?basic=1 可以强制跑这套开场） */
+  if (innerWidth < 720 && !new URLSearchParams(location.search).has('basic')) { token++; render(); showAll(); return; }
+  const t = ++token;
+  playing = true;
+  render();
+  document.body.classList.add('building');
+  window.scrollTo(0, 0);
+  actionBtn.textContent = '跳过';
+  const cs = makeCursors();
+  const W = innerWidth, H = innerHeight;
+
+  requestAnimationFrame(() => cs.forEach(c => c.el.classList.add('on')));
+  await sleep(100);
+  cs.forEach((c, i) => move(c, W * (0.10 + i * 0.13), H * (0.10 + (i % 3) * 0.09)));
+  await sleep(620);
+  if (t !== token) return;
+
+  const nav = rect('.nav');
+  move(cs[0], nav.x + 20, nav.y + 8);
+  await drawBox({ x: nav.x, y: nav.y, w: Math.min(nav.w, W - 40), h: nav.h }, 'W ' + Math.round(nav.w) + ' × H ' + Math.round(nav.h), t);
+  if (t !== token) return;
+  show('[data-nav]');
+
+  const h1 = rect('h1');
+  const guide = fxNode('guide', 'left:' + (h1.x + 2) + 'px;top:' + h1.y + 'px;height:0');
+  move(cs[4], h1.x - 76, h1.y + 16);
+  requestAnimationFrame(() => { guide.style.height = Math.min(h1.h * 2.4, 190) + 'px'; });
+  await sleep(400);
+
+  const nameEl = document.getElementById('heroName');
+  const roleEl = document.getElementById('heroRole');
+  move(cs[1], h1.x + 10, h1.y - 20);
+  await typeInto(nameEl, '你好，我是 ', 58, t);
+  if (t !== token) return;
+  const em = document.createElement('em');
+  nameEl.appendChild(em);
+  await typeInto(em, PROFILE.name, 90, t);
+  if (t !== token) return;
+  Sound.chime(2);
+  document.querySelector('.kicker').classList.remove('pending');
+  document.querySelector('.kicker').classList.add('shown');
+
+  move(cs[2], h1.x + 10, rect('#heroRole').y - 18);
+  await typeInto(roleEl, PROFILE.grade + ' · ' + PROFILE.focus, 32, t);
+  if (t !== token) return;
+  show('[data-hero]');
+  guide.remove();
+
+  const artBox = rect('.art-box');
+  move(cs[3], artBox.x + artBox.w * 0.5, artBox.y - 22);
+  await sleep(260);
+  if (t !== token) return;
+  if (gardenApi) gardenApi.burst();      /* 光标点到画面，粒子从花心炸开一次 */
+  Sound.chime(4);
+  await sleep(620);
+  if (t !== token) return;
+
+  show('[data-label]');
+  const cards = [...document.querySelectorAll('[data-card]:not([data-extra])')];
+  const first = cards[0].getBoundingClientRect();
+  move(cs[3], first.left, first.top - 22);
+  await drawBox({ x: first.left, y: first.top, w: first.width, h: first.height }, 'W ' + Math.round(first.width) + ' × H ' + Math.round(first.height), t);
+  if (t !== token) return;
+  cards[0].classList.remove('pending'); cards[0].classList.add('shown');
+  await sleep(240);
+
+  for (let i = 1; i < cards.length; i++) {
+    if (t !== token) return;
+    const c = cards[i];
+    const r = c.getBoundingClientRect();
+    c.style.transition = 'none';
+    c.style.transform = 'translate(' + (first.left - r.left) + 'px,' + (first.top - r.top) + 'px)';
+    c.classList.remove('pending'); c.classList.add('shown');
+    void c.offsetWidth;
+    c.style.transition = 'transform .55s cubic-bezier(.3,.8,.3,1), opacity .4s ease';
+    move(cs[5], r.left, r.top - 20);
+    requestAnimationFrame(() => { c.style.transform = ''; });
+    Sound.chime(i + 3);
+    await sleep(480);
+  }
+
+  show('[data-extra]', 0);
+  show('[data-below]', 60);
+  show('[data-skill]', 120);
+  Sound.chime(5);
+  await sleep(520);
+  if (t !== token) return;
+
+  cs.forEach((c, i) => move(c, W * 0.5 + Math.cos(i * 1.05) * 100, H * 0.5 + Math.sin(i * 1.05) * 70));
+  await sleep(520);
+  if (t !== token) return;
+  cs.forEach(c => c.el.classList.remove('on'));
+  await sleep(400);
+  document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
+  document.body.classList.remove('building');
+  playing = false;
+  actionBtn.textContent = '重播';
+}
+
+async function tour() {
+  const t = ++token;
+  const cards = [...document.querySelectorAll('[data-card]')];
+  if (!cards.length) return;
+  const cs = makeCursors();
+  const W = innerWidth, H = innerHeight;
+  requestAnimationFrame(() => cs.forEach(c => c.el.classList.add('on')));
+  cs.forEach((c, i) => move(c, W * (0.12 + i * 0.12), H * 0.12));
+  await sleep(420);
+
+  for (let i = 0; i < cards.length; i++) {
+    if (t !== token) break;
+    cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await sleep(520);
+    if (t !== token) break;
+    const r = cards[i].getBoundingClientRect();
+    move(cs[i % cs.length], r.left + r.width / 2, r.top - 26);
+    cards[i].classList.add('spotlight');
+    await drawBox({ x: r.left, y: r.top, w: r.width, h: r.height },
+      (i + 1) + ' / ' + cards.length + ' · W ' + Math.round(r.width) + ' × H ' + Math.round(r.height), t);
+    if (t !== token) break;
+    Sound.chime(i);
+    await sleep(460);
+    cards[i].classList.remove('spotlight');
+  }
+  cs.forEach(c => c.el.classList.remove('on'));
+  await sleep(350);
+  if (t === token) document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
+}
+
+soundBtn.addEventListener('click', () => {
+  if (Sound.on) { Sound.on = false; soundBtn.textContent = '声音：关'; }
+  else { Sound.enable(); soundBtn.textContent = '声音：开'; Sound.chime(0); }
+});
+actionBtn.addEventListener('click', () => {
+  if (playing) { token++; showAll(); }
+  else build();
+});
+tourBtn.addEventListener('click', () => {
+  if (playing) { token++; showAll(); }
+  tour();
+});
+
+/* ---- 原生引擎：直接加载 Swarm Rebuild 的 swarm.js（未改一行逻辑） ---- */
+let nativeLoading = false;
+const controlsEl = document.getElementById('controls');
+
+/* 演示完自动收尾：等引擎把所有图层建完，停 1.5s 让人看清「Rebuilt by N agents」，
+   然后替用户点一次 Go live，页面淡回真实可点的版本。加 ?hold=1 可以停在结果页手动点。 */
+const HOLD = new URLSearchParams(location.search).has('hold');
+let autoExiting = false;      // 已排入自动退出
+let lastDone = -1;            // 上一轮完成的图层数
+let lastMoveAt = 0;           // 最后一次有进度的时间
+let stallKicked = false;      // 卡住时是否已经替用户开过 Tour
+let liftPending = false;      // 是否已经排过一次「露按钮」定时器
+let lastApp = null;           // 上一次观测到的引擎实例，换代就重置自动收尾状态
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('on'));
+  setTimeout(() => { t.classList.remove('on'); setTimeout(() => t.remove(), 400); }, 3200);
+}
+
+/* 引擎的遮罩是 <html> 下的 fixed div，z-index 2147483647，把整页盖住。
+   我们的控制条必须挂到 <html> 下并在它之后，才能真的被点到（否则只是被画出来的像素）。 */
+function liftControls() {
+  if (controlsEl.parentElement === document.documentElement && controlsEl.style.zIndex === '2147483647') return;
+  controlsEl.style.zIndex = '2147483647';
+  document.documentElement.appendChild(controlsEl);
+}
+function dropControls() {
+  if (controlsEl.parentElement === document.body) return;
+  controlsEl.style.zIndex = '';
+  document.body.appendChild(controlsEl);
+}
+
+nativeBtn.addEventListener('click', () => {
+  const api = window.__swarmRebuild;
+  if (api && api.app) { api.stop(true); return; }
+  if (api) { api.start(); return; }
+  if (nativeLoading) return;
+  token++; showAll();          // 快照要拍到完整页面，先把开场动画收干净
+  nativeLoading = true;
+  /* 快照会把可见的按钮也画成图层，所以拍之前先藏起来，挂载后再露出来 */
+  controlsEl.classList.add('capturing');
+  nativeBtn.textContent = '加载引擎…';
+  const s = document.createElement('script');
+  s.src = 'swarm-engine.js';
+  s.onload = () => { nativeLoading = false; };
+  s.onerror = () => { nativeLoading = false; controlsEl.classList.remove('capturing'); nativeBtn.textContent = '引擎加载失败'; };
+  document.body.appendChild(s);
+});
+setInterval(() => {
+  const api = window.__swarmRebuild;
+  const app = api && api.app;
+  const running = !!app;
+  if (app !== lastApp) {
+    lastApp = app;
+    if (app) { autoExiting = false; lastDone = -1; lastMoveAt = 0; stallKicked = false; liftPending = false; }
+  }
+  nativeBtn.classList.toggle('on', running);
+  controlsEl.classList.toggle('native-min', running);
+  const label = running ? (MOBILE ? '退出重建' : '退出原生重建') : (MOBILE ? '原生重建' : '原生引擎重建');
+  if (nativeBtn.textContent !== label && !nativeLoading) nativeBtn.textContent = label;
+  if (running) {
+    if (controlsEl.classList.contains('capturing')) {
+      /* 扫描 + 快照大约 1.5s，等它画完再露按钮，避免被拍进画布变成假按钮 */
+      if (!liftPending) {
+        liftPending = true;
+        setTimeout(() => {
+          liftPending = false;
+          const a2 = window.__swarmRebuild && window.__swarmRebuild.app;
+          if (!a2) return;
+          controlsEl.classList.remove('capturing');
+          liftControls();
+          kickTour(a2);            // 开工就开巡游：页面自己往下滚，不用等人滚
+        }, 2200);
+      }
+    } else {
+      liftControls();
+    }
+    autoFinish(api.app);
+  } else {
+    controlsEl.classList.remove('capturing');
+    dropControls();
+  }
+}, 600);
+
+/* 建完自动退回真实页面：等价于用户点 HUD 上的 Go live */
+function autoFinish(app) {
+  const view = app && app.view;
+  if (!view || HOLD || autoExiting) return;
+  if (app.complete) {
+    autoExiting = true;
+    setTimeout(() => {
+      const api = window.__swarmRebuild;
+      if (api && api.app) api.stop(true);          // reveal = true，淡回真实页面
+      setTimeout(() => {
+        if (window.scrollY > 40) window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast('重建完成，已自动退出 · 页面现在可以正常点击');
+      }, 900);
+    }, 1500);
+    return;
+  }
+  /* 有些图层在首屏下方，引擎会等用户滚动才继续。没人滚就一直等——
+     所以替用户点一次 Tour（自动巡游），让它自己滚完，收尾才不会再卡住。 */
+  const d = app.engine ? app.engine.doneCount : 0;
+  if (d !== lastDone) { lastDone = d; lastMoveAt = Date.now(); return; }
+  if (!lastMoveAt) { lastMoveAt = Date.now(); return; }
+  if (!stallKicked && Date.now() - lastMoveAt > 2500) {
+    stallKicked = true;
+    kickTour(app);
+  }
+}
+
+/* 替用户点一次 HUD 上的 Tour（已经在巡游就不动） */
+function kickTour(app) {
+  if (!app || app.tour) return;
+  const btn = app.view && app.view.root && app.view.root.querySelector('[data-a="tour"]');
+  if (btn) btn.click();
+}
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const api = window.__swarmRebuild;
+    if (api && api.app) { api.stop(false); return; }
+    token++; showAll();
+  }
+  if ((e.key === 'r' || e.key === 'R') && !playing) build();
+});
+
+const qs = new URLSearchParams(location.search);
+const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (qs.has('static') || reduce) {
+  /* 静态模式直接关掉过渡，截图 / 交作业时不会截到动画中间态 */
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{transition:none !important;animation:none !important}';
+  document.head.appendChild(st);
+  render(); showAll();
+} else if (MOBILE && !qs.has('native')) {
+  render(); showAll();                      /* 手机：直接给内容，要演示就点「原生重建」 */
+} else {
+  /* 默认：先把完整页面排好，再交给 Swarm Rebuild 原生引擎整页重建 */
+  render(); showAll();
+  setTimeout(() => nativeBtn.click(), 420);
+}
+</script>
+</body>
+</html>
