@@ -175,7 +175,7 @@
 
 <div id="app"></div>
 <!-- 背景音乐：preload 只用 metadata，等首屏资源就绪后再转 auto 缓冲，避免和封面/引擎抢带宽 -->
-<audio id="bgm" src="music/bgm.mp3" preload="metadata" loop playsinline></audio>
+<audio id="bgm" src="music/bgm.mp3" preload="metadata" loop playsinline webkit-playsinline x5-playsinline></audio>
 
 <script>
 /* ===== 作品信息都在这里，改这一段即可 ===== */
@@ -458,54 +458,73 @@ function showAll() {
 }
 
 /* ---- 背景音乐 ----
-   浏览器不允许「带声音的自动播放」：先自己试一次，被拦下就挂到用户第一次触摸/按键上；
-   开头会淡入，切到后台自动暂停，回来接着放。 */
+   移动端不允许「带声音的自动播放」：先自试一次，被拦就挂到第一次真实触摸/按键；
+   真正开始后 1.4s 淡入；切后台暂停、回来续播；有看门狗兜底，绝不会卡在 0 音量还不出声。 */
 const bgm = document.getElementById('bgm');
 const BGM_VOL = 0.42;
-let bgmArmed = false;        // 是否已经真正开始播过
+let bgmArmed = false;        // 是否曾经成功播放过（被拦时保持 false，等手势重试）
 let bgmPrefetched = false;   // 是否已经把缓冲级别提到 auto
+let bgmRampRaf = 0;          // 只保留一条淡入动画
 
 function bgmRamp(to, ms) {
   if (!bgm) return;
+  cancelAnimationFrame(bgmRampRaf);
   const from = bgm.volume, t0 = performance.now();
   (function step(now) {
     const k = Math.min(1, (now - t0) / ms);
     bgm.volume = Math.max(0, Math.min(1, from + (to - from) * k));
-    if (k < 1) requestAnimationFrame(step);
+    bgmRampRaf = k < 1 ? requestAnimationFrame(step) : 0;
   })(t0);
 }
 
 function bgmStart() {
   if (!bgm || !Sound.on) return;
-  if (!bgm.paused) { bgmArmed = true; return; }
-  bgm.volume = 0;
+  /* 已经在响：只补音量，不要重复 play()（WebKit 上重复 play 会打断缓冲） */
+  if (!bgm.paused) {
+    bgmArmed = true;
+    if (bgm.volume < BGM_VOL - 0.02) bgmRamp(BGM_VOL, 900);
+    return;
+  }
+  bgm.volume = Math.max(bgm.volume, 0.02);   /* 留一点底噪，别让内核把 0 音量当成「没开始」 */
   const pr = bgm.play();
-  if (pr && pr.then) pr.then(() => { bgmArmed = true; bgmRamp(BGM_VOL, 1400); }).catch(() => {});
-  else { bgmArmed = true; bgmRamp(BGM_VOL, 1400); }
+  if (pr && pr.then) {
+    pr.then(() => { bgmArmed = true; bgmRamp(BGM_VOL, 1400); })
+      .catch(() => { bgmArmed = false; bgm.volume = BGM_VOL; });   /* 被拦：音量归位，等下一次手势 */
+  } else {
+    bgmArmed = true; bgmRamp(BGM_VOL, 1400);
+  }
 }
 
-/* 首屏不跟封面抢带宽：load 之后再升级成 auto 预缓冲，等用户点第一下时已经缓冲好了 */
 if (bgm) {
+  /* 首屏先不跟封面/引擎抢带宽：load 之后升级成 auto 预缓冲，用户点第一下时已经缓冲好了 */
   const warm = () => setTimeout(() => {
-    if (bgmPrefetched || !bgm.paused) return;
+    if (bgmPrefetched) return;
     bgmPrefetched = true;
     try { bgm.preload = 'auto'; bgm.load(); } catch (_) {}
-    bgmStart();                       // 有些浏览器此时已允许（用户此前访问过站点）
-  }, 1200);
+    bgmStart();                    // 桌面端 / 老访客此时可能已被允许
+  }, 1000);
   if (document.readyState === 'complete') warm();
   else window.addEventListener('load', warm, { once: true });
 
   /* 被自动播放策略拦住时的兜底：第一次真实交互就接上 */
-  const kick = () => { if (!bgmArmed || bgm.paused) bgmStart(); };
-  ['pointerdown', 'touchend', 'keydown'].forEach(ev => window.addEventListener(ev, kick, { passive: true }));
+  const kick = () => { if (Sound.on && (!bgmArmed || bgm.paused)) bgmStart(); };
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev =>
+    window.addEventListener(ev, kick, { passive: true }));
 
-  /* 卡顿时保命：解码/网络打嗝导致暂停，稍后自己续上 */
+  /* 看门狗：音频被系统打断、卡在 0 音量、莫名暂停，都能自己救回来 */
+  setInterval(() => {
+    if (!Sound.on || document.hidden) return;
+    if (bgm.paused) { if (bgmArmed) bgmStart(); return; }
+    if (bgm.volume < 0.05 && bgm.readyState >= 2) bgmRamp(BGM_VOL, 800);
+  }, 1600);
+
+  /* 解码/网络打嗝：等一会儿自己续上 */
   let retry = 0;
   bgm.addEventListener('waiting', () => {
-    if (bgm.paused) return;
     clearTimeout(retry);
     retry = setTimeout(() => { if (bgm.paused && Sound.on) bgmStart(); }, 900);
   });
+  bgm.addEventListener('stalled', () => { if (Sound.on && bgm.paused) setTimeout(bgmStart, 1200); });
 
   /* 切后台暂停，回来续播（省电，也不在后台偷跑） */
   let wasPlaying = false;
@@ -536,6 +555,7 @@ let autoExiting = false;      // 已排入自动退出
 let lastDone = -1;            // 上一轮完成的图层数
 let lastMoveAt = 0;           // 最后一次有进度的时间
 let stallKicked = false;      // 卡住时是否已经替用户开过 Tour
+let runStartAt = 0;           // 本次重建真正开始的时刻，用于兜底超时
 let liftPending = false;      // 是否已经排过一次「露按钮」定时器
 let bgmHinted = false;        // 是否已经提示过「点一下开始播放音乐」
 let lastApp = null;           // 上一次观测到的引擎实例，换代就重置自动收尾状态
@@ -585,6 +605,7 @@ setInterval(() => {
     lastApp = app;
     if (app) {
       autoExiting = false; lastDone = -1; lastMoveAt = 0; stallKicked = false; liftPending = false;
+      runStartAt = Date.now();
       if (gardenApi && gardenApi.pause) gardenApi.pause();   /* 重建期间粒子花园在遮罩后面，停掉省 CPU */
     } else {
       if (gardenApi && gardenApi.resume) gardenApi.resume();
@@ -644,10 +665,30 @@ function autoFinish(app) {
   const d = app.engine ? app.engine.doneCount : 0;
   if (d !== lastDone) { lastDone = d; lastMoveAt = Date.now(); return; }
   if (!lastMoveAt) { lastMoveAt = Date.now(); return; }
-  if (!stallKicked && Date.now() - lastMoveAt > 2500) {
+  const stuck = Date.now() - lastMoveAt;
+
+  /* 彻底卡死（某些内核对个别图层不推进）：别把人困在动画里，8 秒没动静就直接交还页面 */
+  if (stuck > 8000) { forceExit('动画卡住了，已为你跳过'); return; }
+  /* 极端慢的机器兜底：超过 100 秒强制收尾 */
+  if (runStartAt && Date.now() - runStartAt > 100000) { forceExit('重建超时，已为你跳过'); return; }
+
+  /* 只是暂时停住（图层在首屏下方等滚动）：替用户点一次 Tour 让它自己滚，可重复 */
+  if (Date.now() - lastMoveAt > 2500 && (!stallKicked || Date.now() - lastMoveAt > 5000)) {
     stallKicked = true;
     kickTour(app);
   }
+}
+
+/* 强制交还页面：淡出遮罩，恢复到可点击状态 */
+function forceExit(msg) {
+  if (autoExiting) return;
+  autoExiting = true;
+  const api = window.__swarmRebuild;
+  if (api && api.app) api.stop(true);
+  setTimeout(() => {
+    if (window.scrollY > 40) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (msg) toast(msg);
+  }, 900);
 }
 
 /* 替用户点一次 HUD 上的 Tour（已经在巡游就不动） */
@@ -680,7 +721,12 @@ if (qs.has('static') || reduce) {
   /* 手机流量党 / 省流模式不自动跑：整页快照重建费流量和电，留按钮自己点 */
   const conn = navigator.connection || navigator.mozConnection || {};
   const thrifty = conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '');
-  if (!(MOBILE && thrifty)) {
+  /* 低端机：整页快照重建对 CPU / 内存要求高，跑起来只会卡。这类设备直接给成品页，
+     想看效果自己点「原生重建」，不会一进来就卡住。 */
+  const cores = navigator.hardwareConcurrency || 8;
+  const mem = navigator.deviceMemory || 8;
+  const weak = MOBILE && (cores <= 4 || mem <= 4);
+  if (!(MOBILE && thrifty) && !weak) {
     /* 别让「9 张封面解码」和「引擎整页快照」撞在同一帧：等图片 decode + load 之后再交棒，
        最多等 3s（桌面 1.8s）就先跑，网络慢也不至于一直不开始 */
     const imgs = [].slice.call(document.images);
