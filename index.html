@@ -725,7 +725,7 @@ if (qs.has('static') || reduce) {
      想看效果自己点「原生重建」，不会一进来就卡住。 */
   const cores = navigator.hardwareConcurrency || 8;
   const mem = navigator.deviceMemory || 8;
-  const weak = MOBILE && (cores <= 4 || mem <= 4);
+  const weak = MOBILE && cores <= 4 && mem <= 4;   /* 两个信号都低才算弱机，避免误伤中端机 */
   if (!(MOBILE && thrifty) && !weak) {
     /* 别让「9 张封面解码」和「引擎整页快照」撞在同一帧：等图片 decode + load 之后再交棒，
        最多等 3s（桌面 1.8s）就先跑，网络慢也不至于一直不开始 */
