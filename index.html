@@ -532,9 +532,9 @@ async function drawBox(target, label, t) {
   outline.remove(); badge.remove();
 }
 
-async function build() {
-  /* 手机上默认直接显示（?basic=1 可以强制跑这套开场） */
-  if (innerWidth < 720 && !new URLSearchParams(location.search).has('basic')) { token++; render(); showAll(); return; }
+async function build(force) {
+  /* 手机上默认直接显示（?basic=1 可以强制跑这套开场；点「重播」也会强制跑一次） */
+  if (innerWidth < 720 && !force && !new URLSearchParams(location.search).has('basic')) { token++; render(); showAll(); return; }
   const t = ++token;
   playing = true;
   render();
@@ -668,7 +668,7 @@ soundBtn.addEventListener('click', () => {
 });
 actionBtn.addEventListener('click', () => {
   if (playing) { token++; showAll(); }
-  else build();
+  else build(true);
 });
 tourBtn.addEventListener('click', () => {
   if (playing) { token++; showAll(); }
