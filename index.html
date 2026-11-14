@@ -612,7 +612,7 @@ setInterval(() => {
       /* 浏览器不允许带声音自动播放：整段重建期间都没人点过，这里补一句提示，别让人以为坏了 */
       if (bgm && bgm.paused && Sound.on && !bgmHinted) {
         bgmHinted = true;
-        setTimeout(() => { if (bgm.paused && Sound.on) toast('点一下页面任意处，就能听到背景音乐'); }, 1600);
+        setTimeout(() => { if (bgm.paused && Sound.on) toast('点一下，背景音乐就会响起'); }, 1600);
       }
     }
   }
