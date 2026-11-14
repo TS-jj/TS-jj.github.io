@@ -96,18 +96,6 @@
   .pending { opacity: 0; }
   .shown { opacity: 1; transition: opacity .4s ease; }
 
-  #cursorLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9000; }
-  .cursor { position: fixed; display: flex; align-items: flex-start; gap: 2px; opacity: 0; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1), opacity .35s ease; }
-  .cursor.on { opacity: 1; }
-  .cursor .tag-name { color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-top: 15px; white-space: nowrap; }
-
-  .fx { position: fixed; pointer-events: none; z-index: 8999; }
-  .outline { border: 2px solid var(--violet); border-radius: 10px; transition: width .55s ease, height .55s ease; }
-  .measure { background: var(--violet); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px; transform: translateY(-110%); white-space: nowrap; }
-  .guide { width: 2px; background: #d85a30; opacity: .6; transition: height .45s ease; }
-  .caret { display: inline-block; width: 2px; height: 1em; background: var(--violet); vertical-align: -.14em; animation: blink .8s steps(1) infinite; }
-  @keyframes blink { 50% { opacity: 0; } }
-
   #controls { position: fixed; right: 22px; bottom: 22px; z-index: 9500; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 44px); }
   #controls button {
     font: 12px system-ui, "Microsoft YaHei", sans-serif; color: #fff;
@@ -184,13 +172,12 @@
 
 <div id="controls">
   <button id="soundBtn" type="button">声音：开</button>
-  <button id="tourBtn" type="button">光标巡演</button>
   <button id="nativeBtn" type="button">原生引擎重建</button>
-  <button id="actionBtn" type="button">跳过</button>
 </div>
 
 <div id="app"></div>
-<div id="cursorLayer"></div>
+<!-- 背景音乐：preload 只用 metadata，等首屏资源就绪后再转 auto 缓冲，避免和封面/引擎抢带宽 -->
+<audio id="bgm" src="music/bgm.mp3" preload="metadata" loop playsinline></audio>
 
 <script>
 /* ===== 作品信息都在这里，改这一段即可 ===== */
@@ -219,25 +206,14 @@ const PROFILE = {
 };
 /* ========================================== */
 
-const AGENTS = [
-  { name: 'Ada',      color: '#534ab7' },
-  { name: 'Linus',    color: '#d85a30' },
-  { name: 'Grace',    color: '#1d9e75' },
-  { name: 'Alan',     color: '#378add' },
-  { name: 'Margaret', color: '#d4537e' },
-  { name: 'Ken',      color: '#ba7517' }
-];
 const SCALE = [329.63, 369.99, 415.30, 493.88, 554.37, 659.25];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const app = document.getElementById('app');
 /* 手机上原生引擎要滚动快照整页，帧率撑不住，默认走自研的轻量开场；?native=1 可强制开启 */
 const MOBILE = window.matchMedia('(max-width: 720px), (pointer: coarse)').matches;
-const layer = document.getElementById('cursorLayer');
 const soundBtn = document.getElementById('soundBtn');
-const tourBtn = document.getElementById('tourBtn');
 const nativeBtn = document.getElementById('nativeBtn');
-const actionBtn = document.getElementById('actionBtn');
-let token = 0, playing = false;
+let token = 0;   /* 只用于取消未完成的异步收尾 */
 
 const Sound = {
   on: true, ctx: null, armed: false,
@@ -290,8 +266,12 @@ function startGarden() {
   const ctx = cv.getContext('2d');
   const soft = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let W = 1, H = 1, cx = 1, cy = 1, dpr = 1, raf = 0, t0 = performance.now();
+  let paused = false;                       /* 原生引擎重建时整块画布被盖住，停掉省电省 CPU */
   const P = [];
   const ptr = { x: -999, y: -999, in: false, down: false };
+  /* 手机 GPU/CPU 都吃紧：粒子总数和外圈点缀按比例减，肉眼几乎看不出差别 */
+  const NARROW = window.innerWidth < 520;
+  const F = NARROW ? 0.62 : 1;
 
   const mk = (x, y, c, r) => ({ hx: x, hy: y, x: x, y: y, vx: 0, vy: 0, c: c, r: r, ph: Math.random() * 6.2832 });
 
@@ -300,8 +280,9 @@ function startGarden() {
     const R = Math.min(W, H) * (W < 520 ? 0.34 : 0.40);
     for (let k = 0; k < 6; k++) {                       /* 六片花瓣（纺锤形填充） */
       const a = (k / 6) * Math.PI * 2 - Math.PI / 2;
-      for (let j = 0; j < 34; j++) {
-        const t = j / 33;
+      const petal = Math.round(34 * F);
+      for (let j = 0; j < petal; j++) {
+        const t = j / (petal - 1);
         const rr = R * (0.22 + t * 0.78);
         const w = Math.sin(t * Math.PI) * R * 0.17;
         const side = (Math.random() - 0.5) * 2 * w;
@@ -310,15 +291,15 @@ function startGarden() {
                   t > 0.55 ? '#ff9dbb' : '#ff5f8a', 1 + Math.random() * 1.5));
       }
     }
-    for (let j = 0; j < 62; j++) {                      /* 花心 */
+    for (let j = 0; j < Math.round(62 * F); j++) {      /* 花心 */
       const a = Math.random() * 6.2832, rr = R * Math.pow(Math.random(), 1.7) * 0.26;
       P.push(mk(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, '#ffd9e6', 0.7 + Math.random() * 1.2));
     }
-    for (let j = 0; j < 96; j++) {                      /* 外圈青色粒子 */
+    for (let j = 0; j < Math.round(96 * F); j++) {      /* 外圈青色粒子 */
       const a = Math.random() * 6.2832, rr = R * (0.98 + Math.random() * 0.46);
       P.push(mk(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.9, '#00ffff', 0.6 + Math.random() * 1.1));
     }
-    for (let j = 0; j < 26; j++) {                      /* 琥珀星点 */
+    for (let j = 0; j < Math.round(26 * F); j++) {      /* 琥珀星点 */
       P.push(mk(Math.random() * W, Math.random() * H, '#e9c68b', 0.45 + Math.random() * 0.7));
     }
   }
@@ -327,7 +308,7 @@ function startGarden() {
     const b = cv.getBoundingClientRect();
     const w = Math.max(1, b.width), h = Math.max(1, b.height);
     if (Math.abs(w - W) < 2 && Math.abs(h - H) < 2) return;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, NARROW ? 1.5 : 2);
     W = w; H = h;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -350,6 +331,7 @@ function startGarden() {
   }
 
   function frame(now) {
+    if (paused) return;                     /* 暂停期间彻底不出帧，别拿 requestAnimationFrame 空转 */
     const t = (now - t0) / 1000;
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
@@ -405,6 +387,8 @@ function startGarden() {
   gardenApi = {
     burst: () => burst(),
     stop: () => cancelAnimationFrame(raf),
+    pause: () => { paused = true; cancelAnimationFrame(raf); },
+    resume: () => { if (!paused) return; paused = false; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); },
   };
 }
 
@@ -467,214 +451,83 @@ function render() {
   startGarden();
 }
 
-function show(sel, delay) {
-  document.querySelectorAll(sel).forEach((el, i) => setTimeout(() => {
-    el.classList.remove('pending'); el.classList.add('shown');
-  }, (delay || 0) + i * 70));
-}
-
 function showAll() {
   document.querySelectorAll('.pending').forEach(el => { el.classList.remove('pending'); el.classList.add('shown'); });
   const nameEl = document.getElementById('heroName');
   const roleEl = document.getElementById('heroRole');
   if (nameEl) nameEl.innerHTML = '你好，我是 <em>' + PROFILE.name + '</em>';
   if (roleEl) roleEl.textContent = PROFILE.grade + ' · ' + PROFILE.focus;
-  document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
   document.body.classList.remove('building');
-  playing = false;
-  actionBtn.textContent = '重播';
 }
 
-function makeCursors() {
-  layer.innerHTML = '';
-  const W = innerWidth, H = innerHeight;
-  return AGENTS.map((a, i) => {
-    const el = document.createElement('div');
-    el.className = 'cursor';
-    el.innerHTML = '<svg width="16" height="20" viewBox="0 0 18 22"><path d="M1 1 L1 18 L5.5 14 L8.5 20.5 L11.5 19 L8.5 12.5 L14.5 12.5 Z" fill="' + a.color + '" stroke="#ffffff" stroke-width="1"/></svg><span class="tag-name" style="background:' + a.color + '">' + a.name + '</span>';
-    layer.appendChild(el);
-    el.style.left = (i % 2 ? W + 40 : -60) + 'px';
-    el.style.top = (H * (0.14 + i * 0.13)) + 'px';
-    return { el: el, color: a.color };
+/* ---- 背景音乐 ----
+   浏览器不允许「带声音的自动播放」：先自己试一次，被拦下就挂到用户第一次触摸/按键上；
+   开头会淡入，切到后台自动暂停，回来接着放。 */
+const bgm = document.getElementById('bgm');
+const BGM_VOL = 0.42;
+let bgmArmed = false;        // 是否已经真正开始播过
+let bgmPrefetched = false;   // 是否已经把缓冲级别提到 auto
+
+function bgmRamp(to, ms) {
+  if (!bgm) return;
+  const from = bgm.volume, t0 = performance.now();
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / ms);
+    bgm.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+function bgmStart() {
+  if (!bgm || !Sound.on) return;
+  if (!bgm.paused) { bgmArmed = true; return; }
+  bgm.volume = 0;
+  const pr = bgm.play();
+  if (pr && pr.then) pr.then(() => { bgmArmed = true; bgmRamp(BGM_VOL, 1400); }).catch(() => {});
+  else { bgmArmed = true; bgmRamp(BGM_VOL, 1400); }
+}
+
+/* 首屏不跟封面抢带宽：load 之后再升级成 auto 预缓冲，等用户点第一下时已经缓冲好了 */
+if (bgm) {
+  const warm = () => setTimeout(() => {
+    if (bgmPrefetched || !bgm.paused) return;
+    bgmPrefetched = true;
+    try { bgm.preload = 'auto'; bgm.load(); } catch (_) {}
+    bgmStart();                       // 有些浏览器此时已允许（用户此前访问过站点）
+  }, 1200);
+  if (document.readyState === 'complete') warm();
+  else window.addEventListener('load', warm, { once: true });
+
+  /* 被自动播放策略拦住时的兜底：第一次真实交互就接上 */
+  const kick = () => { if (!bgmArmed || bgm.paused) bgmStart(); };
+  ['pointerdown', 'touchend', 'keydown'].forEach(ev => window.addEventListener(ev, kick, { passive: true }));
+
+  /* 卡顿时保命：解码/网络打嗝导致暂停，稍后自己续上 */
+  let retry = 0;
+  bgm.addEventListener('waiting', () => {
+    if (bgm.paused) return;
+    clearTimeout(retry);
+    retry = setTimeout(() => { if (bgm.paused && Sound.on) bgmStart(); }, 900);
+  });
+
+  /* 切后台暂停，回来续播（省电，也不在后台偷跑） */
+  let wasPlaying = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { wasPlaying = !bgm.paused; if (wasPlaying) bgm.pause(); }
+    else if (wasPlaying && Sound.on) bgmStart();
   });
 }
 
-function move(c, x, y) { c.el.style.left = x + 'px'; c.el.style.top = y + 'px'; }
-function rect(sel) { const r = document.querySelector(sel).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
-
-function fxNode(cls, css) {
-  const n = document.createElement('div');
-  n.className = 'fx ' + cls; n.style.cssText = css;
-  document.body.appendChild(n); return n;
-}
-
-async function typeInto(el, text, speed, t) {
-  el.innerHTML = '';
-  const caret = document.createElement('span');
-  caret.className = 'caret'; el.appendChild(caret);
-  for (const ch of text) {
-    if (t !== token) return;
-    caret.insertAdjacentText('beforebegin', ch);
-    Sound.tick();
-    await sleep(speed);
-  }
-  caret.remove();
-}
-
-async function drawBox(target, label, t) {
-  if (t !== token) return;
-  const outline = fxNode('outline', 'left:' + target.x + 'px;top:' + target.y + 'px;width:0;height:0');
-  const badge = fxNode('measure', 'left:' + target.x + 'px;top:' + target.y + 'px');
-  badge.textContent = label || ('W ' + Math.round(target.w) + ' × H ' + Math.round(target.h));
-  requestAnimationFrame(() => { outline.style.width = target.w + 'px'; outline.style.height = target.h + 'px'; });
-  await sleep(600);
-  Sound.chime(Math.round(target.w / 60));
-  outline.remove(); badge.remove();
-}
-
-async function build(force) {
-  /* 手机上默认直接显示（?basic=1 可以强制跑这套开场；点「重播」也会强制跑一次） */
-  if (innerWidth < 720 && !force && !new URLSearchParams(location.search).has('basic')) { token++; render(); showAll(); return; }
-  const t = ++token;
-  playing = true;
-  render();
-  document.body.classList.add('building');
-  window.scrollTo(0, 0);
-  actionBtn.textContent = '跳过';
-  const cs = makeCursors();
-  const W = innerWidth, H = innerHeight;
-
-  requestAnimationFrame(() => cs.forEach(c => c.el.classList.add('on')));
-  await sleep(100);
-  cs.forEach((c, i) => move(c, W * (0.10 + i * 0.13), H * (0.10 + (i % 3) * 0.09)));
-  await sleep(620);
-  if (t !== token) return;
-
-  const nav = rect('.nav');
-  move(cs[0], nav.x + 20, nav.y + 8);
-  await drawBox({ x: nav.x, y: nav.y, w: Math.min(nav.w, W - 40), h: nav.h }, 'W ' + Math.round(nav.w) + ' × H ' + Math.round(nav.h), t);
-  if (t !== token) return;
-  show('[data-nav]');
-
-  const h1 = rect('h1');
-  const guide = fxNode('guide', 'left:' + (h1.x + 2) + 'px;top:' + h1.y + 'px;height:0');
-  move(cs[4], h1.x - 76, h1.y + 16);
-  requestAnimationFrame(() => { guide.style.height = Math.min(h1.h * 2.4, 190) + 'px'; });
-  await sleep(400);
-
-  const nameEl = document.getElementById('heroName');
-  const roleEl = document.getElementById('heroRole');
-  move(cs[1], h1.x + 10, h1.y - 20);
-  await typeInto(nameEl, '你好，我是 ', 58, t);
-  if (t !== token) return;
-  const em = document.createElement('em');
-  nameEl.appendChild(em);
-  await typeInto(em, PROFILE.name, 90, t);
-  if (t !== token) return;
-  Sound.chime(2);
-  document.querySelector('.kicker').classList.remove('pending');
-  document.querySelector('.kicker').classList.add('shown');
-
-  move(cs[2], h1.x + 10, rect('#heroRole').y - 18);
-  await typeInto(roleEl, PROFILE.grade + ' · ' + PROFILE.focus, 32, t);
-  if (t !== token) return;
-  show('[data-hero]');
-  guide.remove();
-
-  const artBox = rect('.art-box');
-  move(cs[3], artBox.x + artBox.w * 0.5, artBox.y - 22);
-  await sleep(260);
-  if (t !== token) return;
-  if (gardenApi) gardenApi.burst();      /* 光标点到画面，粒子从花心炸开一次 */
-  Sound.chime(4);
-  await sleep(620);
-  if (t !== token) return;
-
-  show('[data-label]');
-  const cards = [...document.querySelectorAll('[data-card]:not([data-extra])')];
-  const first = cards[0].getBoundingClientRect();
-  move(cs[3], first.left, first.top - 22);
-  await drawBox({ x: first.left, y: first.top, w: first.width, h: first.height }, 'W ' + Math.round(first.width) + ' × H ' + Math.round(first.height), t);
-  if (t !== token) return;
-  cards[0].classList.remove('pending'); cards[0].classList.add('shown');
-  await sleep(240);
-
-  for (let i = 1; i < cards.length; i++) {
-    if (t !== token) return;
-    const c = cards[i];
-    const r = c.getBoundingClientRect();
-    c.style.transition = 'none';
-    c.style.transform = 'translate(' + (first.left - r.left) + 'px,' + (first.top - r.top) + 'px)';
-    c.classList.remove('pending'); c.classList.add('shown');
-    void c.offsetWidth;
-    c.style.transition = 'transform .55s cubic-bezier(.3,.8,.3,1), opacity .4s ease';
-    move(cs[5], r.left, r.top - 20);
-    requestAnimationFrame(() => { c.style.transform = ''; });
-    Sound.chime(i + 3);
-    await sleep(480);
-  }
-
-  show('[data-extra]', 0);
-  show('[data-below]', 60);
-  show('[data-skill]', 120);
-  Sound.chime(5);
-  await sleep(520);
-  if (t !== token) return;
-
-  cs.forEach((c, i) => move(c, W * 0.5 + Math.cos(i * 1.05) * 100, H * 0.5 + Math.sin(i * 1.05) * 70));
-  await sleep(520);
-  if (t !== token) return;
-  cs.forEach(c => c.el.classList.remove('on'));
-  await sleep(400);
-  document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
-  document.body.classList.remove('building');
-  playing = false;
-  actionBtn.textContent = '重播';
-}
-
-async function tour() {
-  const t = ++token;
-  const cards = [...document.querySelectorAll('[data-card]')];
-  if (!cards.length) return;
-  const cs = makeCursors();
-  const W = innerWidth, H = innerHeight;
-  requestAnimationFrame(() => cs.forEach(c => c.el.classList.add('on')));
-  cs.forEach((c, i) => move(c, W * (0.12 + i * 0.12), H * 0.12));
-  await sleep(420);
-
-  for (let i = 0; i < cards.length; i++) {
-    if (t !== token) break;
-    cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    await sleep(520);
-    if (t !== token) break;
-    const r = cards[i].getBoundingClientRect();
-    move(cs[i % cs.length], r.left + r.width / 2, r.top - 26);
-    cards[i].classList.add('spotlight');
-    await drawBox({ x: r.left, y: r.top, w: r.width, h: r.height },
-      (i + 1) + ' / ' + cards.length + ' · W ' + Math.round(r.width) + ' × H ' + Math.round(r.height), t);
-    if (t !== token) break;
-    Sound.chime(i);
-    await sleep(460);
-    cards[i].classList.remove('spotlight');
-  }
-  cs.forEach(c => c.el.classList.remove('on'));
-  await sleep(350);
-  if (t === token) document.querySelectorAll('.cursor, .fx').forEach(n => n.remove());
-}
-
 soundBtn.addEventListener('click', () => {
-  if (Sound.on) { Sound.on = false; soundBtn.textContent = '声音：关'; }
-  else { Sound.enable(); soundBtn.textContent = '声音：开'; Sound.chime(0); }
+  if (Sound.on) {
+    Sound.on = false; bgm.pause();
+    soundBtn.textContent = '声音：关';
+  } else {
+    Sound.enable(); bgmStart();
+    soundBtn.textContent = '声音：开';
+    Sound.chime(0);
+  }
 });
-actionBtn.addEventListener('click', () => {
-  if (playing) { token++; showAll(); }
-  else build(true);
-});
-tourBtn.addEventListener('click', () => {
-  if (playing) { token++; showAll(); }
-  tour();
-});
-
 /* ---- 原生引擎：直接加载 Swarm Rebuild 的 swarm.js（未改一行逻辑） ---- */
 let nativeLoading = false;
 const controlsEl = document.getElementById('controls');
@@ -687,6 +540,7 @@ let lastDone = -1;            // 上一轮完成的图层数
 let lastMoveAt = 0;           // 最后一次有进度的时间
 let stallKicked = false;      // 卡住时是否已经替用户开过 Tour
 let liftPending = false;      // 是否已经排过一次「露按钮」定时器
+let bgmHinted = false;        // 是否已经提示过「点一下开始播放音乐」
 let lastApp = null;           // 上一次观测到的引擎实例，换代就重置自动收尾状态
 function toast(msg) {
   const t = document.createElement('div');
@@ -732,7 +586,17 @@ setInterval(() => {
   const running = !!app;
   if (app !== lastApp) {
     lastApp = app;
-    if (app) { autoExiting = false; lastDone = -1; lastMoveAt = 0; stallKicked = false; liftPending = false; }
+    if (app) {
+      autoExiting = false; lastDone = -1; lastMoveAt = 0; stallKicked = false; liftPending = false;
+      if (gardenApi && gardenApi.pause) gardenApi.pause();   /* 重建期间粒子花园在遮罩后面，停掉省 CPU */
+    } else {
+      if (gardenApi && gardenApi.resume) gardenApi.resume();
+      /* 浏览器不允许带声音自动播放：整段重建期间都没人点过，这里补一句提示，别让人以为坏了 */
+      if (bgm && bgm.paused && Sound.on && !bgmHinted) {
+        bgmHinted = true;
+        setTimeout(() => { if (bgm.paused && Sound.on) toast('点一下页面任意处，就能听到背景音乐'); }, 1600);
+      }
+    }
   }
   nativeBtn.classList.toggle('on', running);
   controlsEl.classList.toggle('native-min', running);
@@ -801,7 +665,7 @@ window.addEventListener('keydown', e => {
     if (api && api.app) { api.stop(false); return; }
     token++; showAll();
   }
-  if ((e.key === 'r' || e.key === 'R') && !playing) build();
+  if (e.key === 'r' || e.key === 'R') nativeBtn.click();
 });
 
 const qs = new URLSearchParams(location.search);
@@ -819,7 +683,15 @@ if (qs.has('static') || reduce) {
   /* 手机流量党 / 省流模式不自动跑：整页快照重建费流量和电，留按钮自己点 */
   const conn = navigator.connection || navigator.mozConnection || {};
   const thrifty = conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '');
-  if (!(MOBILE && thrifty)) setTimeout(() => nativeBtn.click(), MOBILE ? 900 : 420);
+  if (!(MOBILE && thrifty)) {
+    /* 别让「9 张封面解码」和「引擎整页快照」撞在同一帧：等图片 decode + load 之后再交棒，
+       最多等 3s（桌面 1.8s）就先跑，网络慢也不至于一直不开始 */
+    const imgs = [].slice.call(document.images);
+    const decoded = Promise.all(imgs.map(i => (i.decode ? i.decode().catch(() => {}) : Promise.resolve())));
+    const loaded = new Promise(r => (document.readyState === 'complete' ? r() : window.addEventListener('load', r, { once: true })));
+    const gate = Promise.race([Promise.all([decoded, loaded]), new Promise(r => setTimeout(r, MOBILE ? 3000 : 1800))]);
+    gate.then(() => setTimeout(() => nativeBtn.click(), MOBILE ? 260 : 120));
+  }
 }
 </script>
 </body>
