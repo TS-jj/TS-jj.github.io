@@ -813,12 +813,13 @@ if (qs.has('static') || reduce) {
   st.textContent = '*,*::before,*::after{transition:none !important;animation:none !important}';
   document.head.appendChild(st);
   render(); showAll();
-} else if (MOBILE && !qs.has('native')) {
-  render(); showAll();                      /* 手机：直接给内容，要演示就点「原生重建」 */
 } else {
-  /* 默认：先把完整页面排好，再交给 Swarm Rebuild 原生引擎整页重建 */
+  /* 默认：先把完整页面排好，再交给 Swarm Rebuild 原生引擎整页重建（桌面 / 手机一致） */
   render(); showAll();
-  setTimeout(() => nativeBtn.click(), 420);
+  /* 手机流量党 / 省流模式不自动跑：整页快照重建费流量和电，留按钮自己点 */
+  const conn = navigator.connection || navigator.mozConnection || {};
+  const thrifty = conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '');
+  if (!(MOBILE && thrifty)) setTimeout(() => nativeBtn.click(), MOBILE ? 900 : 420);
 }
 </script>
 </body>
