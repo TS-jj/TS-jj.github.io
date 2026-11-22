@@ -239,9 +239,16 @@ button{font:inherit}
 /* ========== 题卡 ========== */
 .qcard{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-m);
   box-shadow:var(--sh-1);overflow:hidden;transition:border-color .16s,box-shadow .16s;
-  content-visibility:auto;contain-intrinsic-size:auto 112px}
+  content-visibility:auto;contain-intrinsic-size:auto 112px;
+  scroll-margin-top:calc(var(--header-h) + var(--stats-h) + 12px)}
 .qcard:hover{box-shadow:var(--sh-2)}
 .qcard.is-open{content-visibility:visible;border-color:var(--line-strong)}
+/* 「下一未答 / 上一题 / 下一题」定位后的短暂高亮，让跳转有明确视觉落点 */
+.qcard.is-located{animation:card-locate 1.5s ease-out}
+@keyframes card-locate{
+  0%,100%{box-shadow:var(--sh-1)}
+  12%,55%{box-shadow:0 0 0 3px var(--gold-l),var(--sh-2);border-color:var(--gold)}
+}
 .qcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--st-mark)}
 .qcard.style-unanswered{--st-fg:var(--s-unanswered-fg);--st-bg:var(--s-unanswered-bg);--st-mark:var(--s-unanswered-mark)}
 .qcard.style-correct{--st-fg:var(--s-correct-fg);--st-bg:var(--s-correct-bg);--st-mark:var(--s-correct-mark)}
@@ -1312,21 +1319,42 @@ function redoCard(no){
   updateStatsBarText(); renderGrid(); renderSidebar();
   announce("第"+no+"题已重置，可重新作答");
 }
+// 定位到目标题卡：滚动到位 + 短暂高亮 + 可见提示；若目标被筛选隐藏则自动切回全部
+function locateAndHighlight(no, msg){
+  let card=document.querySelector('.qcard[data-no="'+no+'"]');
+  if(!card && state.session){
+    state.session.filter.status="all"; state.session.filter.query="";
+    saveSessionSoon(); renderGrid();
+    document.querySelectorAll(".pill").forEach(x=>{
+      const on=x.dataset.k==="all"; x.classList.toggle("sel",on); x.setAttribute("aria-pressed",on);
+    });
+    const si=$("searchInput"); if(si) si.value="";
+    card=document.querySelector('.qcard[data-no="'+no+'"]');
+  }
+  if(card){
+    card.classList.remove("is-located"); void card.offsetWidth; card.classList.add("is-located");
+    try{ card.scrollIntoView({behavior:"smooth",block:"start"}); }catch(e){ card.scrollIntoView(); }
+  }
+  announce(msg); showToast(msg);
+}
 function nextCard(){
   const s=state.session; if(!s) return;
   const q=s.queue, cur=q.indexOf(s.expanded);
   for(let k=1;k<=q.length;k++){
     const no=q[(cur+k+q.length)%q.length];
-    if(statusOf(no)==="unanswered"){ s.expanded=no; saveSessionSoon(); renderGrid(); announce("已定位到第"+no+"题"); return; }
+    if(statusOf(no)==="unanswered"){
+      s.expanded=no; saveSessionSoon(); renderGrid();
+      locateAndHighlight(no,"已定位到下一未答 · 第"+no+"题"); return;
+    }
   }
-  announce("本轮已无未答题目");
+  showToast("本轮已无未答题目，可以交卷了");
 }
 function moveCard(dir){
   const s=state.session; if(!s||!s.queue.length) return;
   const q=s.queue, cur=q.indexOf(s.expanded);
   const next=cur<0 ? (dir>0?0:q.length-1) : (cur+dir+q.length)%q.length;
   s.expanded=q[next]; saveSessionSoon(); renderGrid();
-  announce("第"+q[next]+"题");
+  locateAndHighlight(q[next],"已定位到第"+q[next]+"题");
 }
 // 答对：把所有 exams 中同题号的未订正子项一次性订正；撤销按 uid 全量回滚
 function masterWrong(no){
