@@ -57,16 +57,33 @@ button{font:inherit}
   border-bottom:1px solid var(--line);box-shadow:var(--sh-1)}
 .topbar-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:100%;
   display:flex;align-items:center;gap:14px}
+/* 品牌区整体可点击回首页：与「首页」按钮互为冗余入口，降低迷路概率 */
+.brand-home{display:flex;align-items:center;gap:12px;min-width:0;flex:1;background:transparent;border:0;
+  border-radius:var(--r-m);padding:5px 8px;margin-left:-8px;cursor:pointer;text-align:left;
+  transition:background .16s}
+.brand-home:hover{background:var(--cream)}
+.brand-home:active{background:var(--line)}
 .emblem{width:44px;height:44px;flex:0 0 44px;filter:drop-shadow(0 2px 5px rgba(184,39,45,.18))}
 .emblem svg{width:100%;height:100%;display:block}
-.brand{min-width:0;flex:1}
-.brand-title{font-size:16px;font-weight:800;color:var(--red-d);letter-spacing:.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brand-sub{font-size:11px;color:var(--ink-faint);letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.topnav{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.nav-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;
+.brand{min-width:0;display:block}
+.brand-title{display:block;font-size:16px;font-weight:800;color:var(--red-d);letter-spacing:.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-sub{display:block;font-size:11px;color:var(--ink-faint);letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topnav{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;
   background:transparent;border:1px solid transparent;border-radius:999px;color:var(--ink-soft);
-  font-size:13px;cursor:pointer;transition:background .16s,border-color .16s,color .16s}
+  font-size:13px;cursor:pointer;transition:background .16s,border-color .16s,color .16s,transform .16s,box-shadow .16s}
+.nav-btn svg{width:16px;height:16px;flex:0 0 16px;display:block}
 .nav-btn:hover{background:var(--cream);border-color:var(--line-strong);color:var(--red-d)}
+.nav-btn:active{transform:scale(.96)}
+/* 当前所在页：浅底 + 描边 + 红字加粗，与其他入口明显区分 */
+.nav-btn.is-active{background:var(--cream);border-color:var(--line-strong);color:var(--red-d);font-weight:700}
+/* 首页：金色描边，位置固定在导航最前；激活时描边转红 */
+.nav-home{border-color:var(--line-strong)}
+.nav-home.is-active{border-color:var(--red);color:var(--red-d)}
+/* 继续：进行中的练习，实心红主操作，与次级入口区分 */
+.nav-continue{background:linear-gradient(135deg,var(--red),var(--red-d));color:#fff;border-color:transparent;
+  box-shadow:0 2px 8px rgba(184,39,45,.2)}
+.nav-continue:hover{background:linear-gradient(135deg,var(--red-d),#7a171b);color:#fff;border-color:transparent}
 .nav-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;
   border-radius:999px;background:var(--s-due-bg);color:var(--s-due-fg);font-size:12px;font-weight:700}
 .nav-help{width:44px;padding:0;justify-content:center;font-size:18px;font-weight:700;border-color:var(--line-strong)}
@@ -102,12 +119,18 @@ button{font:inherit}
 .sec-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;
   color:var(--red-d);margin-bottom:16px}
 .sec-title::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--gold-l)}
+.card-lead{font-size:13px;color:var(--ink-soft);margin:-6px 0 16px;line-height:1.7}
+.section-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-top:4px}
+.section-label::after{content:"";height:1px;flex:1;background:var(--line)}
+.start-card .segmented{margin-bottom:14px}
+.start-card .btn-block svg{width:18px;height:18px;flex-basis:18px}
 .tip{font-size:12px;color:var(--ink-faint);text-align:center;margin-top:12px}
 
 /* ========== 按钮 ========== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;
   padding:0 18px;border-radius:var(--r-m);border:1px solid transparent;font-size:14px;
   font-weight:700;letter-spacing:.5px;cursor:pointer;transition:transform .16s,box-shadow .16s,background .16s,border-color .16s}
+.btn svg{width:17px;height:17px;flex:0 0 17px;display:block}
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
 .btn-primary{background:linear-gradient(135deg,var(--red),var(--red-d));color:#fff;
@@ -142,6 +165,8 @@ button{font:inherit}
 .entry-card.primary{border-color:var(--red);background:linear-gradient(135deg,var(--paper),#fdf0f0)}
 .entry-card .ec-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .entry-card .ec-icon{width:38px;height:38px;border-radius:var(--r-m);display:flex;align-items:center;justify-content:center;font-size:19px}
+.entry-card .ec-icon-star{background:var(--fav-badge-bg);color:var(--fav-on-edge)}
+.entry-card .ec-icon-star svg{width:20px;height:20px;display:block;fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
 .entry-card .ec-arrow{color:var(--ink-faint);font-size:18px}
 .entry-card h3{font-size:16px;margin-top:12px;color:var(--ink)}
 .entry-card p{font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.6}
@@ -517,12 +542,16 @@ button{font:inherit}
   .main{padding-top:14px;padding-bottom:96px}
   .guide-wrap{padding-left:14px;padding-right:14px}
   .emblem{width:28px;height:28px;flex-basis:28px}
+  .brand-home{gap:7px;padding:4px;margin-left:-4px}
   .brand-title{font-size:14px}
   .brand-sub{display:none}
   .topnav{gap:2px}
-  .nav-btn{padding:0 8px;font-size:12px;min-height:44px}
-  .nav-help{width:44px}
+  .nav-btn{padding:0 8px;font-size:12px;min-height:44px;gap:4px}
+  /* 移动端只保留「继续」主操作隐藏：首页已有继续卡片，避免顶栏过载 */
+  .nav-continue{display:none!important}
   .nav-fav .fav-label{display:none}
+  /* 首页与错题本保留文字；收藏用星标即可识别，进一步节省横向空间 */
+  .nav-home{padding:0 10px}
   .fav-icon-btn{opacity:.9}
   .avatar-btn{width:32px;height:32px;flex-basis:32px}
   .avatar-btn svg{width:17px;height:17px}
@@ -613,6 +642,8 @@ const PILLS = [
 const ICON = {
   // 收藏唯一图标源：全站四处复用同一 path，仅靠 .is-fav / .is-off 切填充
   star:'<svg viewBox="0 0 24 24" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.05 1-5.9-4.3-4.2 5.9-.9z"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></svg>',
+  notebook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
   warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".7" fill="currentColor" stroke="none"/></svg>',
   avatar:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.2" r="4.2"/><path d="M3.6 21c0-4.5 3.8-7.2 8.4-7.2s8.4 2.7 8.4 7.2z"/></svg>',
@@ -998,16 +1029,22 @@ function render(){
 }
 function renderHeader(){
   return '<header class="topbar"><div class="topbar-inner">'+
-    '<div class="emblem"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="中国共产主义青年团团徽"><circle cx="60" cy="60" r="57" fill="#fff8ec" stroke="#d9a534" stroke-width="2.5"/><g><polygon points="81.0,58.8 81.0,61.2 105.0,60.0" fill="#f0b93f" opacity="0.8"/><polygon points="80.4,64.9 80.1,66.0 95.7,69.6" fill="#f0b93f" opacity="0.8"/><polygon points="78.7,69.5 77.6,71.5 99.0,82.5" fill="#f0b93f" opacity="0.8"/><polygon points="75.3,74.4 74.4,75.3 86.2,86.2" fill="#f0b93f" opacity="0.8"/><polygon points="71.5,77.6 69.5,78.7 82.5,99.0" fill="#f0b93f" opacity="0.8"/><polygon points="66.0,80.1 64.9,80.4 69.6,95.7" fill="#f0b93f" opacity="0.8"/><polygon points="61.2,81.0 58.8,81.0 60.0,105.0" fill="#f0b93f" opacity="0.8"/><polygon points="55.1,80.4 54.0,80.1 50.4,95.7" fill="#f0b93f" opacity="0.8"/><polygon points="50.5,78.7 48.5,77.6 37.5,99.0" fill="#f0b93f" opacity="0.8"/><polygon points="45.6,75.3 44.7,74.4 33.8,86.2" fill="#f0b93f" opacity="0.8"/><polygon points="42.4,71.5 41.3,69.5 21.0,82.5" fill="#f0b93f" opacity="0.8"/><polygon points="39.9,66.0 39.6,64.9 24.3,69.6" fill="#f0b93f" opacity="0.8"/><polygon points="39.0,61.2 39.0,58.8 15.0,60.0" fill="#f0b93f" opacity="0.8"/><polygon points="39.6,55.1 39.9,54.0 24.3,50.4" fill="#f0b93f" opacity="0.8"/><polygon points="41.3,50.5 42.4,48.5 21.0,37.5" fill="#f0b93f" opacity="0.8"/><polygon points="44.7,45.6 45.6,44.7 33.8,33.8" fill="#f0b93f" opacity="0.8"/><polygon points="48.5,42.4 50.5,41.3 37.5,21.0" fill="#f0b93f" opacity="0.8"/><polygon points="54.0,39.9 55.1,39.6 50.4,24.3" fill="#f0b93f" opacity="0.8"/><polygon points="58.8,39.0 61.2,39.0 60.0,15.0" fill="#f0b93f" opacity="0.8"/><polygon points="64.9,39.6 66.0,39.9 69.6,24.3" fill="#f0b93f" opacity="0.8"/><polygon points="69.5,41.3 71.5,42.4 82.5,21.0" fill="#f0b93f" opacity="0.8"/><polygon points="74.4,44.7 75.3,45.6 86.2,33.8" fill="#f0b93f" opacity="0.8"/><polygon points="77.6,48.5 78.7,50.5 99.0,37.5" fill="#f0b93f" opacity="0.8"/><polygon points="80.1,54.0 80.4,55.1 95.7,50.4" fill="#f0b93f" opacity="0.8"/></g><g><ellipse cx="52.0" cy="105.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(190 52.0 105.3)"/><ellipse cx="44.9" cy="103.7" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(199 44.9 103.7)"/><ellipse cx="38.2" cy="101.1" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(208 38.2 101.1)"/><ellipse cx="31.9" cy="97.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(217 31.9 97.3)"/><ellipse cx="26.2" cy="92.6" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(226 26.2 92.6)"/><ellipse cx="21.7" cy="86.8" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(235 21.7 86.8)"/><ellipse cx="18.2" cy="80.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(244 18.2 80.4)"/><ellipse cx="15.8" cy="73.5" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(253 15.8 73.5)"/><ellipse cx="14.4" cy="66.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(262 14.4 66.4)"/><ellipse cx="105.6" cy="66.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(98 105.6 66.4)"/><ellipse cx="104.2" cy="73.5" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(107 104.2 73.5)"/><ellipse cx="101.8" cy="80.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(116 101.8 80.4)"/><ellipse cx="98.3" cy="86.8" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(125 98.3 86.8)"/><ellipse cx="93.8" cy="92.6" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(134 93.8 92.6)"/><ellipse cx="88.1" cy="97.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(143 88.1 97.3)"/><ellipse cx="81.8" cy="101.1" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(152 81.8 101.1)"/><ellipse cx="75.1" cy="103.7" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(161 75.1 103.7)"/><ellipse cx="68.0" cy="105.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(170 68.0 105.3)"/></g><g><rect x="97.0" y="71.0" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(20 98.5 74.0)"/><rect x="94.0" y="77.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(30 95.5 80.5)"/><rect x="89.9" y="83.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(40 91.4 86.4)"/><rect x="84.9" y="88.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(50 86.4 91.4)"/><rect x="79.0" y="92.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(60 80.5 95.5)"/><rect x="72.5" y="95.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(70 74.0 98.5)"/><rect x="65.6" y="97.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(80 67.1 100.4)"/><rect x="58.5" y="98.0" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(90 60.0 101.0)"/><rect x="51.4" y="97.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(100 52.9 100.4)"/><rect x="44.5" y="95.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(110 46.0 98.5)"/><rect x="38.0" y="92.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(120 39.5 95.5)"/><rect x="32.1" y="88.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(130 33.6 91.4)"/><rect x="27.1" y="83.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(140 28.6 86.4)"/><path d="M93.8,72.3 A36,36 0 0 1 26.2,72.3" fill="none" stroke="#b07d28" stroke-width="3"/></g><path d="M28 25 Q44 30 60 26 T89 26 L87 57 Q71 61 57 57 T29 58 Z" fill="#c8102e" stroke="#a50d26" stroke-width="1"/><circle cx="42" cy="36" r="8" fill="none" stroke="#ffdd57" stroke-width="2"/><polygon points="42.0,30.5 43.4,34.1 47.2,34.3 44.2,36.7 45.2,40.4 42.0,38.3 38.8,40.4 39.8,36.7 36.8,34.3 40.6,34.1" fill="#ffdd57"/><path d="M16 76 L104 76 L99 93 L60 97 L21 93 Z" fill="#c8102e" stroke="#d9a534" stroke-width="1.2"/><text x="60" y="90" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="bold" font-family="SimHei,Microsoft YaHei,sans-serif" letter-spacing="1">中国共青团</text></svg></div>'+
-    '<div class="brand"><div class="brand-title">团课知识 · 随手测</div><div class="brand-sub">入团积极分子 · 题库自测</div></div>'+
+    '<button class="brand-home" type="button" data-act="go-home" aria-label="返回首页" title="返回首页"><span class="emblem"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="中国共产主义青年团团徽"><circle cx="60" cy="60" r="57" fill="#fff8ec" stroke="#d9a534" stroke-width="2.5"/><g><polygon points="81.0,58.8 81.0,61.2 105.0,60.0" fill="#f0b93f" opacity="0.8"/><polygon points="80.4,64.9 80.1,66.0 95.7,69.6" fill="#f0b93f" opacity="0.8"/><polygon points="78.7,69.5 77.6,71.5 99.0,82.5" fill="#f0b93f" opacity="0.8"/><polygon points="75.3,74.4 74.4,75.3 86.2,86.2" fill="#f0b93f" opacity="0.8"/><polygon points="71.5,77.6 69.5,78.7 82.5,99.0" fill="#f0b93f" opacity="0.8"/><polygon points="66.0,80.1 64.9,80.4 69.6,95.7" fill="#f0b93f" opacity="0.8"/><polygon points="61.2,81.0 58.8,81.0 60.0,105.0" fill="#f0b93f" opacity="0.8"/><polygon points="55.1,80.4 54.0,80.1 50.4,95.7" fill="#f0b93f" opacity="0.8"/><polygon points="50.5,78.7 48.5,77.6 37.5,99.0" fill="#f0b93f" opacity="0.8"/><polygon points="45.6,75.3 44.7,74.4 33.8,86.2" fill="#f0b93f" opacity="0.8"/><polygon points="42.4,71.5 41.3,69.5 21.0,82.5" fill="#f0b93f" opacity="0.8"/><polygon points="39.9,66.0 39.6,64.9 24.3,69.6" fill="#f0b93f" opacity="0.8"/><polygon points="39.0,61.2 39.0,58.8 15.0,60.0" fill="#f0b93f" opacity="0.8"/><polygon points="39.6,55.1 39.9,54.0 24.3,50.4" fill="#f0b93f" opacity="0.8"/><polygon points="41.3,50.5 42.4,48.5 21.0,37.5" fill="#f0b93f" opacity="0.8"/><polygon points="44.7,45.6 45.6,44.7 33.8,33.8" fill="#f0b93f" opacity="0.8"/><polygon points="48.5,42.4 50.5,41.3 37.5,21.0" fill="#f0b93f" opacity="0.8"/><polygon points="54.0,39.9 55.1,39.6 50.4,24.3" fill="#f0b93f" opacity="0.8"/><polygon points="58.8,39.0 61.2,39.0 60.0,15.0" fill="#f0b93f" opacity="0.8"/><polygon points="64.9,39.6 66.0,39.9 69.6,24.3" fill="#f0b93f" opacity="0.8"/><polygon points="69.5,41.3 71.5,42.4 82.5,21.0" fill="#f0b93f" opacity="0.8"/><polygon points="74.4,44.7 75.3,45.6 86.2,33.8" fill="#f0b93f" opacity="0.8"/><polygon points="77.6,48.5 78.7,50.5 99.0,37.5" fill="#f0b93f" opacity="0.8"/><polygon points="80.1,54.0 80.4,55.1 95.7,50.4" fill="#f0b93f" opacity="0.8"/></g><g><ellipse cx="52.0" cy="105.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(190 52.0 105.3)"/><ellipse cx="44.9" cy="103.7" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(199 44.9 103.7)"/><ellipse cx="38.2" cy="101.1" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(208 38.2 101.1)"/><ellipse cx="31.9" cy="97.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(217 31.9 97.3)"/><ellipse cx="26.2" cy="92.6" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(226 26.2 92.6)"/><ellipse cx="21.7" cy="86.8" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(235 21.7 86.8)"/><ellipse cx="18.2" cy="80.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(244 18.2 80.4)"/><ellipse cx="15.8" cy="73.5" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(253 15.8 73.5)"/><ellipse cx="14.4" cy="66.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(262 14.4 66.4)"/><ellipse cx="105.6" cy="66.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(98 105.6 66.4)"/><ellipse cx="104.2" cy="73.5" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(107 104.2 73.5)"/><ellipse cx="101.8" cy="80.4" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(116 101.8 80.4)"/><ellipse cx="98.3" cy="86.8" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(125 98.3 86.8)"/><ellipse cx="93.8" cy="92.6" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(134 93.8 92.6)"/><ellipse cx="88.1" cy="97.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(143 88.1 97.3)"/><ellipse cx="81.8" cy="101.1" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(152 81.8 101.1)"/><ellipse cx="75.1" cy="103.7" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(161 75.1 103.7)"/><ellipse cx="68.0" cy="105.3" rx="2.4" ry="5" fill="#e3ae3c" transform="rotate(170 68.0 105.3)"/></g><g><rect x="97.0" y="71.0" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(20 98.5 74.0)"/><rect x="94.0" y="77.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(30 95.5 80.5)"/><rect x="89.9" y="83.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(40 91.4 86.4)"/><rect x="84.9" y="88.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(50 86.4 91.4)"/><rect x="79.0" y="92.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(60 80.5 95.5)"/><rect x="72.5" y="95.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(70 74.0 98.5)"/><rect x="65.6" y="97.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(80 67.1 100.4)"/><rect x="58.5" y="98.0" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(90 60.0 101.0)"/><rect x="51.4" y="97.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(100 52.9 100.4)"/><rect x="44.5" y="95.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(110 46.0 98.5)"/><rect x="38.0" y="92.5" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(120 39.5 95.5)"/><rect x="32.1" y="88.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(130 33.6 91.4)"/><rect x="27.1" y="83.4" width="3" height="6" rx="0.8" fill="#b07d28" transform="rotate(140 28.6 86.4)"/><path d="M93.8,72.3 A36,36 0 0 1 26.2,72.3" fill="none" stroke="#b07d28" stroke-width="3"/></g><path d="M28 25 Q44 30 60 26 T89 26 L87 57 Q71 61 57 57 T29 58 Z" fill="#c8102e" stroke="#a50d26" stroke-width="1"/><circle cx="42" cy="36" r="8" fill="none" stroke="#ffdd57" stroke-width="2"/><polygon points="42.0,30.5 43.4,34.1 47.2,34.3 44.2,36.7 45.2,40.4 42.0,38.3 38.8,40.4 39.8,36.7 36.8,34.3 40.6,34.1" fill="#ffdd57"/><path d="M16 76 L104 76 L99 93 L60 97 L21 93 Z" fill="#c8102e" stroke="#d9a534" stroke-width="1.2"/><text x="60" y="90" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="bold" font-family="SimHei,Microsoft YaHei,sans-serif" letter-spacing="1">中国共青团</text></svg></span>'+
+    '<span class="brand"><span class="brand-title">团课知识 · 随手测</span><span class="brand-sub">入团积极分子 · 题库自测</span></span></button>'+
     '<nav class="topnav">'+
-      '<button class="nav-btn" data-act="go-wrongbook">错题本 <span class="nav-count">'+activeWrongCount()+'</span></button>'+
-      '<button class="nav-btn nav-fav'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
-        ' aria-label="收藏错题，当前'+favCount()+'题已收藏">'+ICON.star+'<span class="fav-label">收藏</span>'+
+      '<button class="nav-btn nav-home'+(state.route==="home"?" is-active":"")+'" type="button" data-act="go-home"'+
+        ' title="返回首页" aria-label="返回首页"'+(state.route==="home"?' aria-current="page"':'')+'>'+
+        ICON.home+'<span class="nav-label">首页</span></button>'+
+      '<button class="nav-btn'+(state.route==="wrongbook"?" is-active":"")+'" type="button" data-act="go-wrongbook"'+
+        ' title="错题本 · '+activeWrongCount()+' 题待订正" aria-label="打开错题本，当前'+activeWrongCount()+'题待订正">'+
+        ICON.notebook+'<span class="nav-label">错题本</span><span class="nav-count">'+activeWrongCount()+'</span></button>'+
+      '<button class="nav-btn nav-fav'+(favCount()>0?' is-fav':'')+(state.route==="favorites"?" is-active":"")+'" type="button" data-act="go-favorites"'+
+        ' title="收藏错题 · '+favCount()+' 题" aria-label="我的收藏，当前'+favCount()+'题已收藏">'+
+        ICON.star+'<span class="fav-label">收藏</span>'+
         (favCount()>0?'<span class="nav-fav-count">'+favCount()+'</span>':'')+'</button>'+
-      (state.session?'<button class="nav-btn" data-act="continue">继续</button>':'')+
+      (state.session && state.route!=="practice"?'<button class="nav-btn nav-continue" type="button" data-act="continue"'+
+        ' title="继续上次练习" aria-label="继续上次练习">'+ICON.pen+'<span class="nav-label">继续</span></button>':'')+
       '<button class="avatar-btn" type="button" data-act="profile" aria-label="个人学习档案" title="个人学习档案">'+ICON.avatar+'</button>'+
-      '<button class="nav-btn nav-help" data-act="profile" aria-label="个人数据面板" title="个人数据面板">?</button>'+
     '</nav></div></header>';
 }
 function renderStatsBar(){
@@ -1037,48 +1074,60 @@ function updateStatsBarText(){
 }
 function updateHeaderCounts(){
   const el=document.querySelector(".nav-count"); if(el) el.textContent=activeWrongCount();
-  const wb=document.querySelector("[data-act='go-wrongbook']");
-  if(wb) wb.setAttribute("aria-label","打开错题本，当前"+activeWrongCount()+"题待订正");
+  const wb=document.querySelector(".topnav [data-act='go-wrongbook']");
+  if(wb){
+    wb.setAttribute("aria-label","打开错题本，当前"+activeWrongCount()+"题待订正");
+    wb.setAttribute("title","错题本 · "+activeWrongCount()+" 题待订正");
+  }
   updateFavCounts();
 }
 
 /* ==================== 11. 渲染：首页 ==================== */
 function renderHome(){
-  const c=cumulativeStats(), wn=activeWrongCount(), s=state.session;
-  return '<div class="home">'+
-    '<section class="card hero"><div class="hero-head"><div class="hero-mark" aria-hidden="true">◈</div>'+
-      '<div><h2>历史累计</h2><p>来自已归档练习 · 共 '+state.history.length+' 轮</p></div></div>'+
-      '<div class="home-stats">'+
-        '<div class="hstat"><div class="v">'+c.processed+'</div><div class="k">累计做题数</div></div>'+
-        '<div class="hstat"><div class="v">'+fmtTime(c.elapsed)+'</div><div class="k">累计用时</div></div>'+
-        '<div class="hstat"><div class="v">'+(c.rate==null?"—":c.rate+"%")+'</div><div class="k">历史正确率</div></div>'+
-      '</div></section>'+
-    '<div class="entry-grid">'+
-      '<section class="card entry-card" data-act="go-wrongbook" role="button" tabindex="0" aria-label="打开错题本，当前'+wn+'题待订正">'+
-        '<div class="ec-top"><div class="ec-icon" style="background:var(--s-due-bg);color:var(--s-due-fg)" aria-hidden="true">◆</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
-        '<h3>错题本 <span style="color:var(--s-due-fg)">'+wn+'</span></h3><p>按场次归档答错题目，订正或删除后计数自动更新。</p>'+
-        '<button class="fav-sublink'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
-          ' aria-label="我的收藏，当前'+favCount()+'题">'+ICON.star+
-          '<span class="fav-sublink-text">我的收藏 '+(favCount()>0?favCount()+' 题':'· 还没有收藏的题')+'</span><span aria-hidden="true">→</span></button></section>'+
-      (s? '<section class="card entry-card primary" data-act="continue" role="button" tabindex="0" aria-label="继续上次练习">'+
-        '<div class="ec-top"><div class="ec-icon" style="background:#fdeeed;color:var(--red)" aria-hidden="true">▶</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
-        '<h3>继续练习</h3><p>'+modeLabel(s.mode)+' · 已处理 '+sessionStats(s).processed+'/'+s.queue.length+' 题，现场已为你保留。</p></section>':'')+
+  const c=cumulativeStats(), wn=activeWrongCount(), s=state.session, fn=favCount();
+  let html='<div class="home">';
+  // 主操作置顶：选择题量 → 开始测试
+  html+='<section class="card start-card">'+
+    '<div class="sec-title">开始自测</div>'+
+    '<p class="card-lead">选择题量后，系统会一次列出该模式下全部题目；点开任意题卡作答，提交即判分。</p>'+
+    '<div class="segmented" role="group" aria-label="题量模式">'+
+      MODES.map(m=>'<button class="seg'+(state.selectedMode===m.n?' sel':'')+'" data-act="mode" data-n="'+m.n+'" aria-pressed="'+(state.selectedMode===m.n)+'">'+
+        '<span class="n">'+m.n+'</span><span class="l">'+m.l+'</span></button>').join("")+
     '</div>'+
-    '<section class="card"><div class="sec-title">选择测试题量</div>'+
-      '<div class="segmented" role="group" aria-label="题量模式">'+
-        MODES.map(m=>'<button class="seg'+(state.selectedMode===m.n?' sel':'')+'" data-act="mode" data-n="'+m.n+'" aria-pressed="'+(state.selectedMode===m.n)+'">'+
-          '<span class="n">'+m.n+'</span><span class="l">'+m.l+'</span></button>').join("")+
-      '</div>'+
-      '<button class="btn btn-primary btn-block" data-act="start">开 始 测 试</button>'+
-      '<div class="tip">填空题 · 从题库原句挖空关键考点 · 即时判分 · 进度自动保存</div>'+
-    '</section></div>';
+    '<button class="btn btn-primary btn-block" data-act="start">'+ICON.pen+'开 始 测 试</button>'+
+    '<div class="tip">填空题 · 从题库原句挖空关键考点 · 即时判分 · 进度自动保存</div>'+
+  '</section>';
+  // 进行中的练习：独立全宽入口，打断“重新测试”的单一路径
+  if(s){
+    html+='<section class="card entry-card primary continue-card" data-act="continue" role="button" tabindex="0" aria-label="继续上次练习">'+
+      '<div class="ec-top"><div class="ec-icon" style="background:#fdeeed;color:var(--red)" aria-hidden="true">▶</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
+      '<h3>继续练习</h3><p>'+modeLabel(s.mode)+' · 已处理 '+sessionStats(s).processed+'/'+s.queue.length+' 题，现场已为你保留。</p></section>';
+  }
+  // 我的学习：错题本 / 收藏并列，均为独立卡片
+  html+='<div class="section-label">我的学习</div><div class="entry-grid">'+
+    '<section class="card entry-card" data-act="go-wrongbook" role="button" tabindex="0" aria-label="打开错题本，当前'+wn+'题待订正">'+
+      '<div class="ec-top"><div class="ec-icon" style="background:var(--s-due-bg);color:var(--s-due-fg)" aria-hidden="true">◆</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
+      '<h3>错题本 <span style="color:var(--s-due-fg)">'+wn+'</span></h3><p>按考试场次归档答错题目，可单题订正或整场删除。</p></section>'+
+    '<section class="card entry-card" data-act="go-favorites" role="button" tabindex="0" aria-label="我的收藏，当前'+fn+'题">'+
+      '<div class="ec-top"><div class="ec-icon ec-icon-star" aria-hidden="true">'+ICON.star+'</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
+      '<h3>我的收藏 <span style="color:var(--fav-on-edge)">'+fn+'</span></h3><p>重点错题单独收拢，随时回看或独立重做。</p></section>'+
+  '</div>';
+  // 历史累计：作为参考信息后置
+  html+='<section class="card hero"><div class="hero-head"><div class="hero-mark" aria-hidden="true">◈</div>'+
+    '<div><h2>历史累计</h2><p>来自已归档练习 · 共 '+state.history.length+' 轮</p></div></div>'+
+    '<div class="home-stats">'+
+      '<div class="hstat"><div class="v">'+c.processed+'</div><div class="k">累计做题数</div></div>'+
+      '<div class="hstat"><div class="v">'+fmtTime(c.elapsed)+'</div><div class="k">累计用时</div></div>'+
+      '<div class="hstat"><div class="v">'+(c.rate==null?"—":c.rate+"%")+'</div><div class="k">历史正确率</div></div>'+
+    '</div></section>';
+  return html+'</div>';
 }
 
 /* ==================== 12. 渲染：练习页 ==================== */
 function renderPractice(){
   if(!state.session) return '<div class="card empty-state">'+artBlank()+
     '<h3>没有进行中的练习</h3><p>返回首页选一个题量，开始新的自测。</p>'+
-    '<button class="btn btn-primary" data-act="go-home">返回首页</button></div>';
+    '<button class="btn btn-primary" data-act="go-home">'+ICON.home+'返回首页</button></div>';
   const s=state.session;
   return '<div class="practice">'+
     '<div class="filterbar"><div class="pills" role="group" aria-label="状态筛选">'+
@@ -1348,7 +1397,7 @@ function renderResult(){
   const r=state.result;
   if(!r) return '<div class="card empty-state">'+artBlank()+
     '<h3>暂无可展示的结果</h3><p>完成一轮练习并交卷后，这里会显示详细统计。</p>'+
-    '<button class="btn btn-primary" data-act="go-home">返回首页</button></div>';
+    '<button class="btn btn-primary" data-act="go-home">'+ICON.home+'返回首页</button></div>';
   const st=r.stats;
   const score=st.submitted? st.rate : 0;
   const wrongList=r.queue.filter(no=>{ const a=r.answers[no]; return a && a.status==="wrong"; });
@@ -1395,7 +1444,7 @@ function renderResult(){
     '<section class="card"><div class="result-actions">'+
       '<button class="btn btn-primary" data-act="redo-round">重做本轮错题 ('+wrongList.length+')</button>'+
       '<button class="btn btn-soft" data-act="again">再练一次</button>'+
-      '<button class="btn btn-ghost" data-act="go-home">返回首页</button>'+
+      '<button class="btn btn-ghost" data-act="go-home">'+ICON.home+'返回首页</button>'+
     '</div></section></div>';
 }
 
@@ -1465,6 +1514,7 @@ function renderWrongbook(){
   const head='<div class="wb-head"><div><h2>错题本 · '+active+' 题待订正</h2>'+
     '<p>按考试场次归档 · 共 '+state.exams.length+' 场 · 数据实时派生自考试记录</p></div>'+
     '<div class="wb-head-actions">'+
+      '<button class="btn btn-ghost" type="button" data-act="go-home" title="返回首页">'+ICON.home+'返回首页</button>'+
       '<button class="btn btn-soft fav-head-btn'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
         ' aria-label="查看我的收藏，当前'+favCount()+'题">'+ICON.star+'收藏<span class="fav-head-count"> '+favCount()+'</span></button>'+
       (active>0?'<button class="btn btn-primary" type="button" data-act="start-redo">重做错题 ('+nos.length+')</button>':'')+
@@ -1517,7 +1567,10 @@ function renderFavorites(){
   const items=favItems(), n=items.length;
   const head='<div class="wb-head"><div><h2>★ 收藏错题 · <span class="fav-title-count">'+n+'</span> 题</h2>'+
     '<p>集中查看你标记的重点错题</p></div>'+
-    '<button class="btn btn-soft" type="button" data-act="go-wrongbook">返回错题本</button></div>';
+    '<div class="wb-head-actions">'+
+      '<button class="btn btn-ghost" type="button" data-act="go-home" title="返回首页">'+ICON.home+'返回首页</button>'+
+      '<button class="btn btn-soft" type="button" data-act="go-wrongbook">'+ICON.notebook+'返回错题本</button>'+
+    '</div></div>';
   if(!n){
     return head+'<div class="card empty-state">'+artFav()+
       '<h3>还没有收藏的错题</h3>'+
@@ -1537,7 +1590,8 @@ function updateFavCounts(){
   const nav=document.querySelector(".nav-fav");
   if(nav){
     nav.classList.toggle("is-fav",n>0);
-    nav.setAttribute("aria-label","收藏错题，当前"+n+"题已收藏");
+    nav.setAttribute("aria-label","我的收藏，当前"+n+"题已收藏");
+    nav.setAttribute("title","收藏错题 · "+n+" 题");
     let b=nav.querySelector(".nav-fav-count");
     if(n>0){
       if(!b){ b=document.createElement("span"); b.className="nav-fav-count"; nav.appendChild(b); }
