@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>入团积极分子 · 团课知识自测</title>
 <style>
-/* ========== 设计变量 ========== */
+/* ========== 设计变量（基线复刻 + 新增语义变量） ========== */
 :root{
   --red:#b8272d; --red-d:#8f1d22; --red-l:#e0585e;
   --gold:#d9a534; --gold-l:#f0c96b;
@@ -20,6 +20,16 @@
   --s-due-fg:#4c3a8f; --s-due-bg:#efeafb; --s-due-mark:#6e5bb5;
 
   --tip-bg:#fff4d6; --tip-bd:#f0c96b; --tip-fg:#7a5600;
+
+  --danger:var(--s-wrong-fg); --danger-d:#8a2318;
+  --danger-bg:var(--s-wrong-bg); --danger-line:#f3c3be;
+  --exam-spine:var(--red); --exam-time-bg:var(--cream); --exam-time-fg:var(--ink-faint);
+  --profile-ring:var(--gold-l);
+  --profile-grad:linear-gradient(135deg,var(--red),var(--red-d));
+  --bar-gold:linear-gradient(90deg,var(--gold-l),var(--red-l));
+  /* 收藏：金色点睛语义，零蓝；徽标文字用深琥珀而非亮金 */
+  --fav-on:var(--gold); --fav-on-edge:#a67c00; --fav-hover:var(--gold);
+  --fav-off:var(--ink-faint); --fav-badge-bg:rgba(217,165,52,.16); --fav-badge-fg:var(--tip-fg);
 
   --r-s:8px; --r-m:12px; --r-l:16px;
   --sh-1:0 2px 8px rgba(96,58,32,.07);
@@ -36,7 +46,7 @@ body{
   background-attachment:fixed;
   -webkit-font-smoothing:antialiased;
 }
-.tabular, .stat-v, .nav-count, .score-num, .qno-badge{font-variant-numeric:tabular-nums}
+.tabular, .stat-v, .nav-count, .score-num, .qno-badge, .exam-metric .v, .pstat .v, .due-badge{font-variant-numeric:tabular-nums}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .hidden{display:none!important}
 button{font:inherit}
@@ -60,6 +70,30 @@ button{font:inherit}
 .nav-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;
   border-radius:999px;background:var(--s-due-bg);color:var(--s-due-fg);font-size:12px;font-weight:700}
 .nav-help{width:44px;padding:0;justify-content:center;font-size:18px;font-weight:700;border-color:var(--line-strong)}
+/* 收藏顶栏入口：星标常驻（灰线性/金填充），N=0 隐藏数字徽标 */
+.nav-fav{gap:6px}
+.nav-fav svg{width:16px;height:16px;display:block;fill:none;stroke:var(--fav-off);stroke-width:1.6}
+.nav-fav.is-fav svg{fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+.nav-fav-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;
+  border-radius:999px;background:var(--fav-badge-bg);color:var(--fav-badge-fg);font-size:12px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.fav-sublink{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);
+  background:transparent;border:0;border-top:1px dashed var(--line);padding:8px 0 0;margin-top:8px;
+  min-height:44px;cursor:pointer}
+.fav-sublink svg{width:16px;height:16px;display:block;fill:none;stroke:var(--fav-off);stroke-width:1.6}
+.fav-sublink.is-fav svg{fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+.fav-sublink:hover{color:var(--red-d)}
+.fav-head-btn svg{width:16px;height:16px;display:block;fill:none;stroke:var(--fav-off);stroke-width:1.6}
+.fav-head-btn.is-fav svg{fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+/* 头像入口：圆形红金 + 金环 + 白边，与外部助手头像明确区分 */
+.avatar-btn{width:36px;height:36px;flex:0 0 36px;border-radius:50%;border:2px solid var(--profile-ring);
+  background:var(--profile-grad);color:#fff;display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 0 0 2px var(--paper),var(--sh-1);
+  transition:transform .16s,box-shadow .16s}
+.avatar-btn svg{width:19px;height:19px;display:block}
+.avatar-btn:hover{transform:scale(1.05);box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--profile-ring),var(--sh-1)}
+.avatar-btn:active{transform:scale(.97)}
+.avatar-btn:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 
 /* ========== 通用容器 ========== */
 .main{max-width:1200px;margin:0 auto;padding:24px}
@@ -82,6 +116,8 @@ button{font:inherit}
 .btn-ghost{background:var(--paper);color:var(--red-d);border-color:var(--red)}
 .btn-soft{background:var(--cream);color:var(--ink-soft);border-color:var(--line-strong)}
 .btn-soft:hover{border-color:var(--gold-l);color:var(--ink)}
+.btn-danger{background:var(--danger);color:#fff;border:1px solid var(--danger);font-weight:800}
+.btn-danger:hover{background:var(--danger-d)}
 .btn-block{width:100%}
 .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
 .link-btn{background:none;border:0;color:var(--ink-soft);font-size:13px;text-decoration:underline;
@@ -98,7 +134,7 @@ button{font:inherit}
 .hero-head p{font-size:12px;color:var(--ink-faint)}
 .home-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .hstat{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;text-align:center}
-.hstat .v{font-size:26px;font-weight:800;color:var(--red-d);line-height:1.2}
+.hstat .v{font-size:26px;font-weight:800;color:var(--red-d);line-height:1.2;font-variant-numeric:tabular-nums}
 .hstat .k{font-size:12px;color:var(--ink-soft);margin-top:4px}
 .entry-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .entry-card{cursor:pointer;transition:border-color .16s,box-shadow .16s,transform .16s;display:block}
@@ -130,12 +166,13 @@ button{font:inherit}
 .stat-k{font-size:11px;color:var(--ink-faint);letter-spacing:.5px}
 .stat-v{font-size:17px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stats-fill{position:absolute;left:0;bottom:0;height:3px;width:0;border-radius:0 3px 3px 0;
-  background:linear-gradient(90deg,var(--gold-l),var(--red-l));transition:width .2s}
+  background:var(--bar-gold);transition:width .2s}
 
 /* ========== 新手引导 ========== */
 .guide-wrap{max-width:1200px;margin:14px auto 0;padding:0 24px}
 .guide{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:var(--r-m);
   background:var(--tip-bg);border:1px solid var(--tip-bd);color:var(--tip-fg);font-size:13px}
+.guide svg{flex:0 0 18px;width:18px;height:18px}
 .guide .guide-x{margin-left:auto;background:none;border:0;color:var(--tip-fg);cursor:pointer;
   min-width:44px;min-height:44px;font-size:18px}
 
@@ -185,7 +222,6 @@ button{font:inherit}
 .qcard.style-correct{--st-fg:var(--s-correct-fg);--st-bg:var(--s-correct-bg);--st-mark:var(--s-correct-mark)}
 .qcard.style-wrong{--st-fg:var(--s-wrong-fg);--st-bg:var(--s-wrong-bg);--st-mark:var(--s-wrong-mark)}
 .qcard.style-skipped{--st-fg:var(--s-skip-fg);--st-bg:var(--s-skip-bg);--st-mark:var(--s-skip-mark)}
-.qcard.style-due{--st-fg:var(--s-due-fg);--st-bg:var(--s-due-bg);--st-mark:var(--s-due-mark)}
 .qcard-summary{display:block;width:100%;min-height:108px;text-align:left;background:none;border:0;
   padding:16px 18px 14px 20px;cursor:pointer;color:inherit}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
@@ -215,7 +251,7 @@ button{font:inherit}
 .q-actions .btn{flex:1 1 auto;min-width:96px;padding:0 10px;font-size:13px}
 .fb{padding:12px;border-radius:var(--r-s);font-size:13px;margin-top:12px;line-height:1.8}
 .fb.ok{background:var(--s-correct-bg);border:1px solid #bfe3cc;color:var(--s-correct-fg)}
-.fb.no{background:var(--s-wrong-bg);border:1px solid #f3c3be;color:var(--s-wrong-fg)}
+.fb.no{background:var(--s-wrong-bg);border:1px solid var(--danger-line);color:var(--s-wrong-fg)}
 .fb>b{display:block;margin-bottom:4px;font-size:14px}
 .fb-row{padding:2px 0}
 .ans-mark{background:var(--s-correct-bg);color:var(--s-correct-fg);padding:1px 6px;border-radius:var(--r-s);font-weight:700}
@@ -236,7 +272,7 @@ button{font:inherit}
   background:var(--s-correct-bg);color:var(--s-correct-fg);font-size:12px;font-weight:700}
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
 .gstat{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-m);padding:12px;text-align:center}
-.gstat .v{font-size:20px;font-weight:800;color:var(--red-d);line-height:1.2}
+.gstat .v{font-size:20px;font-weight:800;color:var(--red-d);line-height:1.2;font-variant-numeric:tabular-nums}
 .gstat .k{font-size:11px;color:var(--ink-soft);margin-top:2px}
 .result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
 .result-actions .btn{flex:1 1 160px}
@@ -249,25 +285,165 @@ button{font:inherit}
 .your-tag{background:var(--s-wrong-bg);color:var(--s-wrong-fg);padding:1px 8px;border-radius:var(--r-s);font-weight:700}
 .ok-tag{background:var(--s-correct-bg);color:var(--s-correct-fg);padding:1px 8px;border-radius:var(--r-s);font-weight:700}
 .empty-state{text-align:center;padding:48px 20px;color:var(--ink-soft)}
-.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-art{width:120px;height:96px;display:block;margin:0 auto 12px}
 .empty-state h3{font-size:16px;color:var(--ink);margin-bottom:6px}
-.empty-state p{font-size:13px;margin-bottom:18px}
+.empty-state p{font-size:13px;margin-bottom:18px;line-height:1.7}
 
-/* ========== 错题本 ========== */
+/* ========== 错题本 · 考试分组 ========== */
 .wb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .wb-head h2{font-size:18px;color:var(--red-d)}
 .wb-head p{font-size:12px;color:var(--ink-soft);margin-top:2px}
 .wb-head .btn{flex-shrink:0}
+.wb-notice{background:var(--s-correct-bg);color:var(--s-correct-fg);border:1px solid #bfe3cc;
+  border-radius:var(--r-s);padding:8px 12px;font-size:12px;margin-bottom:12px}
+.exam-list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.exam-list:focus{outline:none}
+.exam-card{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:16px 18px 16px 20px;transition:border-color .16s,box-shadow .16s}
+.exam-card::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;
+  border-radius:0 2px 2px 0;background:var(--exam-spine)}
+.exam-card.is-expanded{border-color:var(--line-strong);box-shadow:var(--sh-1)}
+.exam-head{position:relative;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:44px}
+.exam-toggle-hit{position:absolute;inset:0;width:100%;z-index:1;background:transparent;border:0;cursor:pointer;border-radius:var(--r-s)}
+.exam-toggle-hit:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.exam-head-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none;min-width:0}
+.exam-head-info.left{flex:1 1 auto}
+.exam-head-info.right{flex:0 0 auto}
+.exam-badge{background:#fdf0f0;color:var(--red-d);font-size:12px;font-weight:800;
+  padding:3px 8px;border-radius:var(--r-s);white-space:nowrap}
+.exam-time{background:var(--exam-time-bg);color:var(--exam-time-fg);font-size:12px;
+  padding:3px 8px;border-radius:999px;white-space:nowrap}
+.due-badge{background:var(--s-due-bg);color:var(--s-due-fg);font-size:11px;font-weight:700;
+  padding:3px 8px;border-radius:999px;white-space:nowrap}
+.exam-rate-quick{font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.exam-chevron{color:var(--ink-faint);font-size:16px;line-height:1;display:inline-block;
+  transition:transform .16s}
+.exam-card.is-expanded .exam-chevron{transform:rotate(180deg)}
+.del-exam{position:relative;z-index:2;display:inline-flex;align-items:center;gap:4px;min-height:44px;
+  padding:4px 8px;border-radius:var(--r-s);border:1px solid transparent;background:transparent;
+  color:var(--ink-faint);font-size:12px;cursor:pointer;opacity:0;pointer-events:none;
+  transition:opacity .16s,background .16s,color .16s,border-color .16s}
+.del-exam svg{width:14px;height:14px}
+.exam-card:hover .del-exam,.exam-card:focus-within .del-exam,.del-exam:focus-visible{opacity:1;pointer-events:auto}
+.del-exam:hover,.del-exam:focus-visible{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-line)}
+.del-exam:active{background:#f7d5d0}
+.del-exam:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.exam-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;
+  padding-top:12px;border-top:1px dashed var(--line);text-align:center}
+.exam-metric{min-width:0}
+.exam-metric+.exam-metric{border-left:1px solid var(--line)}
+.exam-metric .k{display:block;font-size:11px;color:var(--ink-faint)}
+.exam-metric .v{display:block;font-size:20px;font-weight:800;color:var(--red-d);line-height:1.3}
+.rate-track{height:4px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:10px}
+.rate-fill{height:100%;border-radius:999px;background:var(--bar-gold);width:0;transition:width .16s}
+.exam-wrongs{margin:12px 0 2px 16px;padding-left:16px;border-left:1px solid var(--line);
+  display:flex;flex-direction:column;gap:8px;animation:wbIn .16s ease-out}
+@keyframes wbIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.all-done-note{font-size:12px;color:var(--s-correct-fg);padding:4px 2px}
+.all-done-head{font-size:11px;color:var(--s-correct-fg);font-weight:700;white-space:nowrap}
+.wb-item{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:12px 14px;box-shadow:none;transition:opacity .16s,border-color .16s}
+.wb-item:hover{border-color:var(--line-strong)}
+.wb-item.is-removing{opacity:.5;pointer-events:none}
+.wb-item.is-mastered{background:var(--cream)}
+.wb-item-top{display:flex;align-items:center;gap:8px}
+.due-chip,.done-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;
+  font-size:12px;font-weight:700;white-space:nowrap}
+.due-chip{background:var(--s-due-bg);color:var(--s-due-fg)}
+.done-chip{background:var(--s-correct-bg);color:var(--s-correct-fg)}
+.del-item{position:relative;margin-left:auto;width:28px;height:28px;display:inline-flex;align-items:center;
+  justify-content:center;background:transparent;border:1px solid transparent;border-radius:var(--r-s);
+  color:var(--ink-faint);opacity:.55;cursor:pointer;flex:0 0 28px;
+  transition:opacity .16s,background .16s,color .16s,border-color .16s,transform .16s}
+.del-item::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;
+  transform:translate(-50%,-50%)}
+.del-item svg{width:16px;height:16px;pointer-events:none}
+.del-item:hover,.del-item:focus-visible{opacity:1;background:var(--danger-bg);color:var(--danger);border-color:var(--danger-line)}
+.del-item:active{background:#f7d5d0;transform:scale(.94)}
+.del-item:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+/* 收藏星标图标按钮：与删除按钮左右分置，非破坏性，不碰红 */
+.fav-icon-btn{position:relative;width:28px;height:28px;flex:0 0 28px;display:inline-flex;align-items:center;
+  justify-content:center;background:transparent;border:1px solid transparent;border-radius:var(--r-s);
+  color:var(--ink-faint);opacity:.7;cursor:pointer;
+  transition:opacity .16s,background .16s,border-color .16s,transform .16s}
+.fav-icon-btn::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+.fav-icon-btn svg{width:16px;height:16px;display:block;fill:none;stroke:var(--fav-off);stroke-width:1.6;pointer-events:none}
+.fav-icon-btn.is-fav{opacity:1}
+.fav-icon-btn.is-fav svg{fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+.fav-icon-btn:hover,.fav-icon-btn:focus-visible{opacity:1;background:rgba(217,165,52,.12);border-color:var(--tip-bd)}
+.fav-icon-btn:hover svg,.fav-icon-btn:focus-visible svg{stroke:var(--fav-hover)}
+.fav-icon-btn.is-fav:hover svg,.fav-icon-btn.is-fav:focus-visible svg{stroke:var(--fav-on-edge)}
+.fav-icon-btn:active{transform:scale(.94)}
+.fav-icon-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.fav-icon-btn.is-pop svg{animation:fav-pop .18s ease-out}
+@keyframes fav-pop{0%{transform:scale(1)}50%{transform:scale(1.22)}100%{transform:scale(1)}}
+/* 答题反馈「收藏这道题」文字切换按钮 */
+.fav-text-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;
+  border:1px solid var(--tip-bd);border-radius:var(--r-s);background:var(--paper);color:var(--ink-soft);
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:background .16s,border-color .16s,color .16s,transform .16s}
+.fav-text-btn svg{width:20px;height:20px;display:block;fill:none;stroke:var(--fav-off);stroke-width:1.6}
+.fav-text-btn.is-fav{background:rgba(217,165,52,.12);border-color:var(--fav-on);color:var(--tip-fg)}
+.fav-text-btn.is-fav svg{fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+.fav-text-btn:hover{background:rgba(217,165,52,.16)}
+.fav-text-btn:active{transform:scale(.98)}
+.fav-text-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.fav-text-btn.is-pop svg{animation:fav-pop .18s ease-out}
+/* 收藏列表卡：金书脊区别于考试卡红书脊；订正维度与收藏维度并列 */
+.fav-item{position:relative;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--fav-on);
+  border-radius:var(--r-m);padding:12px 14px 12px 16px;box-shadow:none;transition:opacity .16s,border-color .16s}
+.fav-item:hover{border-color:var(--line-strong);border-left-color:var(--fav-on)}
+.fav-item.is-removing{opacity:.5;pointer-events:none}
+.fav-item .fav-toggle{margin-left:auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;
+  padding:0 10px;border:1px solid var(--fav-on);border-radius:var(--r-s);
+  background:rgba(217,165,52,.12);color:var(--tip-fg);font-size:13px;font-weight:700;cursor:pointer;
+  transition:background .16s,color .16s,border-color .16s,transform .16s}
+.fav-item .fav-toggle svg{width:20px;height:20px;display:block;fill:var(--fav-on);stroke:var(--fav-on-edge);stroke-width:1.4}
+.fav-item .fav-toggle:hover{background:var(--cream);color:var(--ink-soft);border-color:var(--line-strong)}
+.fav-item .fav-toggle:hover svg{fill:none;stroke:var(--fav-off);stroke-width:1.6}
+.fav-item .fav-toggle:active{transform:scale(.98)}
+.fav-item .fav-toggle:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.fav-list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.fav-list:focus{outline:none}
+.fav-empty-star{stroke:var(--gold-l);stroke-width:2.4}
+/* 无来源两态：中性弱化文字，绝不显示红色场次徽标/邮戳 */
+.fav-src-note{font-size:12px;color:var(--ink-faint)}
+/* 错题子卡：星标靠右、垃圾桶紧随其后，两种标记分色分形 */
+.wb-item-top .fav-icon-btn{margin-left:auto}
+.wb-item-top .del-item{margin-left:0}
+/* 收藏卡切换按钮：默认「已收藏」，hover/focus 预告「取消收藏」 */
+.fav-item .fav-hover-label{display:none}
+.fav-item .fav-toggle:hover .fav-label,.fav-item .fav-toggle:focus-visible .fav-label{display:none}
+.fav-item .fav-toggle:hover .fav-hover-label,.fav-item .fav-toggle:focus-visible .fav-hover-label{display:inline}
+.wb-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wb-head-actions .btn{flex-shrink:0}
+.wb-item-stem{font-size:14px;line-height:1.65;color:var(--ink);margin-top:8px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wb-item-meta{font-size:11px;color:var(--ink-faint);margin-top:8px;line-height:1.6}
+.wb-item-actions{margin-top:2px}
+.mini-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:18px 8px;line-height:1.7}
+.mini-empty svg{width:56px;height:44px;display:block;margin:0 auto 6px}
+.load-more{display:block;margin:16px auto 0}
 
 /* ========== 弹窗 / Toast ========== */
 .modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(51,46,42,.48);
   display:flex;align-items:center;justify-content:center;padding:20px}
 .modal{background:var(--paper);border:1px solid var(--line-strong);border-radius:var(--r-l);
   box-shadow:var(--sh-2);width:100%;max-width:480px;max-height:85vh;overflow:auto;padding:24px;outline:none}
-.modal h2{font-size:18px;color:var(--red-d);margin-bottom:12px}
+.modal.modal-profile{max-width:560px}
+.modal.modal-del{max-width:400px}
+.modal.modal-del-exam{max-width:440px}
+.modal-del-exam .btn-danger{flex:2 1 auto}
+.modal h2{font-size:18px;color:var(--ink);margin-bottom:12px;line-height:1.5}
 .modal p{font-size:14px;color:var(--ink-soft);line-height:1.8;margin-bottom:12px}
 .modal-actions{display:flex;gap:10px;margin-top:20px}
 .modal-actions .btn{flex:1 1 auto}
+.title-with-icon{display:flex;align-items:center;gap:8px}
+.title-with-icon svg{width:20px;height:20px;color:var(--danger);flex:0 0 20px}
+.danger-banner{background:var(--danger-bg);border:1px solid var(--danger-line);border-radius:var(--r-s);
+  padding:10px 12px;color:var(--danger);font-size:13px;font-weight:700;margin-bottom:14px}
+.archive-error{color:var(--danger);font-weight:700;font-size:13px!important}
+.archive-note{color:var(--s-due-fg);font-size:13px!important;font-weight:700}
 .legend{display:grid;gap:8px;margin:12px 0}
 .legend-row{display:flex;align-items:center;gap:10px;font-size:13px}
 .legend-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-weight:700;font-size:12px}
@@ -282,6 +458,46 @@ button{font:inherit}
 .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .toast button{background:none;border:0;color:#fff;font-weight:700;cursor:pointer;
   text-decoration:underline;min-height:32px;white-space:nowrap}
+
+/* ========== 个人数据面板 ========== */
+.profile-head{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.profile-av{width:56px;height:56px;flex:0 0 56px;border-radius:50%;border:2px solid var(--profile-ring);
+  background:var(--profile-grad);color:#fff;display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 2px var(--paper),var(--sh-1)}
+.profile-av svg{width:28px;height:28px}
+.profile-name{font-size:16px;font-weight:800;color:var(--ink)}
+.profile-sub{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.modal-x{margin-left:auto;align-self:flex-start;background:none;border:0;color:var(--ink-faint);
+  font-size:22px;line-height:1;cursor:pointer;min-width:44px;min-height:44px}
+.modal-x:hover{color:var(--red-d)}
+.best-row{display:flex;align-items:center;gap:8px;background:var(--cream);border:1px solid var(--line);
+  border-radius:var(--r-s);padding:8px 12px;font-size:12px;color:var(--ink-soft);margin-top:16px}
+.best-row svg{width:16px;height:16px;color:var(--gold);flex:0 0 16px}
+.best-row b{margin-left:auto;font-size:16px;font-weight:800;color:var(--red-d)}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.pstat{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-m);padding:14px 10px;text-align:center}
+.pstat .ico{display:block;height:18px;margin-bottom:4px;color:var(--red-d)}
+.pstat .ico svg{width:17px;height:17px}
+.pstat .v{display:block;font-size:26px;font-weight:800;color:var(--red-d);line-height:1.2}
+.pstat .k{display:block;font-size:12px;color:var(--ink-faint);margin-top:4px}
+.pstat.is-danger .ico,.pstat.is-danger .v{color:var(--danger)}
+.pstat.is-good .ico,.pstat.is-good .v{color:var(--s-correct-fg)}
+.pstat .mini-track{height:4px;border-radius:999px;background:var(--line);margin:6px auto 0;width:80%;overflow:hidden}
+.pstat .mini-fill{height:100%;border-radius:999px;background:var(--bar-gold)}
+.recent-block{margin-top:18px}
+.recent-title{font-size:13px;font-weight:700;color:var(--red-d);margin-bottom:8px}
+.recent-item{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:6px 10px;
+  background:var(--cream);border:1px solid var(--line);border-radius:var(--r-s);margin-bottom:6px;
+  cursor:pointer;text-align:left;transition:border-color .16s}
+.recent-item:hover{border-color:var(--gold-l)}
+.recent-item .exam-badge{font-size:11px}
+.recent-item .rt{font-size:11px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.recent-item .rr{margin-left:auto;font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.recent-item .rtrack{width:48px;height:4px;border-radius:999px;background:var(--line);overflow:hidden}
+.recent-item .rfill{height:100%;background:var(--bar-gold)}
+.recent-item .rchev{color:var(--ink-faint);font-size:16px}
+.data-note{margin-top:16px;font-size:11px;color:var(--ink-faint);line-height:1.7;
+  background:var(--cream);border-radius:var(--r-s);padding:8px 10px}
 .footer{text-align:center;color:var(--ink-faint);font-size:12px;padding:8px 0 28px}
 
 /* ========== 响应式 ========== */
@@ -306,6 +522,10 @@ button{font:inherit}
   .topnav{gap:2px}
   .nav-btn{padding:0 8px;font-size:12px;min-height:44px}
   .nav-help{width:44px}
+  .nav-fav .fav-label{display:none}
+  .fav-icon-btn{opacity:.9}
+  .avatar-btn{width:32px;height:32px;flex-basis:32px}
+  .avatar-btn svg{width:17px;height:17px}
   .stat-v{font-size:14px}
   .stat-cell+.stat-cell{padding-left:10px}
   .home-stats{gap:8px}
@@ -333,10 +553,30 @@ button{font:inherit}
   .mobile-bottom .mb-info b{color:var(--red-d);font-variant-numeric:tabular-nums}
   .mobile-bottom .btn{flex-shrink:0}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  /* 考试卡：数据行 2×2，删除按钮常驻并独占一行 */
+  .exam-card{padding:14px 14px 14px 18px}
+  .exam-metrics{grid-template-columns:repeat(2,1fr);row-gap:10px}
+  .exam-metric:nth-child(3){border-left:0}
+  .exam-metric .v{font-size:18px}
+  .del-exam{opacity:1;pointer-events:auto;flex-basis:100%;justify-content:flex-end;
+    border-top:1px dashed var(--line);margin-top:6px;padding-top:6px}
+  .exam-wrongs{margin-left:8px;padding-left:8px}
+  .del-item{opacity:.85}
+  .modal{max-height:85vh;overflow:auto;padding:20px}
+  .modal-actions{flex-direction:column}
+  .modal-actions .btn{width:100%}
+  .modal-profile{padding:18px}
+  .profile-av{width:48px;height:48px;flex-basis:48px}
+  .profile-av svg{width:24px;height:24px}
+  .profile-grid{grid-template-columns:repeat(2,1fr)}
+  .pstat .v{font-size:23px}
+  .empty-art{width:120px;height:92px}
 }
 @media(max-width:400px){
   .pill{padding:0 10px;font-size:12px}
   .q-actions .btn{min-width:calc(50% - 4px)}
+  .q-actions .fav-text-btn{flex-basis:100%}
+  .exam-head-info.left{flex-basis:100%}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -344,16 +584,17 @@ button{font:inherit}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="app" tabindex="-1"></div>
 <div id="modalRoot"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <script>
 "use strict";
-/* ==================== 数据区 ==================== */
+/* ==================== 1. 题库数据（原样保留） ==================== */
 const QUIZ = [{"no": 1, "segs": [{"t": "中国共产党第二十届中央委员会第五次全体会议总结新时代全面从严治党伟大成就和宝贵经验，分析当前和今后一个时期管党治党、兴党强党面临的形势和任务，就持之以恒"}, {"a": "推进全面从严治党"}, {"t": "若干重大问题作出如下决定。"}], "answers": ["推进全面从严治党"]}, {"no": 2, "segs": [{"t": "在革命、建设、改革中先后把党的建设作为伟大工程、新的伟大工程，党的十八大以来深入推进新时代党的建设新的伟大工程，找到“让人民来监督政府”和“"}, {"a": "自我革命"}, {"t": "”两个跳出治乱兴衰历史周期率的答案，这是中国共产党的独特创造，永载马克思主义政党建设史册。"}], "answers": ["自我革命"]}, {"no": 3, "segs": [{"t": "在新时代管党治党、兴党强党伟大实践中，以习近平同志为核心的党中央围绕建设什么样的长期执政的马克思主义政党、怎样建设长期执政的马克思主义政党的重大时代课题，提出一系列新理念新思想新战略，形成"}, {"a": "习近平总书记关于党的建设的重要思想"}, {"t": "。"}], "answers": ["习近平总书记关于党的建设的重要思想"]}, {"no": 4, "segs": [{"t": "持之以恒推进全面从严治党遵循以下原则：坚持服务使命任务、坚持以"}, {"a": "党的政治建设"}, {"t": "为统领、坚持全面从严、坚持问题导向、坚持守正创新、坚持以上率下、坚持依规治党。"}], "answers": ["党的政治建设"]}, {"no": 5, "segs": [{"a": "增强党性"}, {"t": "是全面从严治党的根本性任务。"}], "answers": ["增强党性"]}, {"no": 6, "segs": [{"t": "坚持把"}, {"a": "对党忠诚"}, {"t": "摆在党性修养的突出位置。"}], "answers": ["对党忠诚"]}, {"no": 7, "segs": [{"t": "决不允许搞任人唯亲、排斥异己，搞团团伙伙、拉帮结派，搞匿名诬告、制造谣言，搞收买人心、拉动选票，搞封官许愿、弹冠相庆，搞自行其是、阳奉阴违，搞尾大不掉、妄议中央等“"}, {"a": "七个有之"}, {"t": "”。"}], "answers": ["七个有之"]}, {"no": 8, "segs": [{"t": "加强马克思主义学习型政党建设，把学习、领悟、运用"}, {"a": "党的创新理论"}, {"t": "作为加强党性修养的根本途径，推动全党用习近平新时代中国特色社会主义思想统一思想、统一意志、统一行动。"}], "answers": ["党的创新理论"]}, {"no": 9, "segs": [{"t": "党的高级干部要按照"}, {"a": "马克思主义政治家"}, {"t": "标准要求自己，终身笃信、熟练掌握、善于运用党的创新理论。"}], "answers": ["马克思主义政治家"]}, {"no": 10, "segs": [{"t": "坚持和完善“"}, {"a": "第一议题"}, {"t": "”制度。提高党委（党组）理论学习中心组学习和基层党组织理论学习质量。"}], "answers": ["第一议题"]}, {"no": 11, "segs": [{"t": "用党的优良传统和"}, {"a": "中华优秀传统文化"}, {"t": "涵养党性。"}], "answers": ["中华优秀传统文化"]}, {"no": 12, "segs": [{"t": "深化党史、新中国史、改革开放史、社会主义发展史教育，弘扬以"}, {"a": "伟大建党精神"}, {"t": "为源头的中国共产党人精神谱系，引导党员、干部深刻感悟党的百年奋斗重大成就和历史经验，发扬党的优良作风，传承红色基因，赓续共产党人精神血脉，坚守共产党人价值观。"}], "answers": ["伟大建党精神"]}, {"no": 13, "segs": [{"t": "发挥"}, {"a": "党内政治生活"}, {"t": "锤炼党性的“大熔炉”作用，落实党内政治生活准则，用好批评和自我批评武器，增强党内政治生活的政治性、时代性、原则性、战斗性。"}], "answers": ["党内政治生活"]}, {"no": 14, "segs": [{"t": "把"}, {"a": "党性"}, {"t": "作为干部考察和民主评议党员的重要内容，重点了解和评议党员、干部的境界格局和忠诚度廉洁度。"}], "answers": ["党性"]}, {"no": 15, "segs": [{"a": "民主集中制"}, {"t": "是党的根本组织原则和领导制度，贯彻执行民主集中制是全面从严治党的内在要求。"}], "answers": ["民主集中制"]}, {"no": 16, "segs": [{"t": "坚持党员个人服从党的组织、少数服从多数、下级组织服从上级组织、全党各个组织和全体党员服从"}, {"a": "党的全国代表大会"}, {"t": "和中央委员会的原则。"}], "answers": ["党的全国代表大会"]}, {"no": 17, "segs": [{"t": "坚持和完善"}, {"a": "党内民主"}, {"t": "制度，尊重党员主体地位，保障党员民主权利。"}], "answers": ["党内民主"]}, {"no": 18, "segs": [{"t": "坚持"}, {"a": "集体领导"}, {"t": "和个人分工负责相结合，坚持科学决策、民主决策、依法决策，凡属重大问题必须按照集体领导、民主集中、个别酝酿、会议决定的原则，由集体讨论作出决定。"}], "answers": ["集体领导"]}, {"no": 19, "segs": [{"t": "健全领导干部重大决策"}, {"a": "终身负责制"}, {"t": "。"}], "answers": ["终身负责制"]}, {"no": 20, "segs": [{"t": "规范“"}, {"a": "一把手"}, {"t": "”履职用权。落实加强对“"}, {"a": "一把手"}, {"t": "”和领导班子监督的制度规定。"}], "answers": ["一把手", "一把手"]}, {"no": 21, "segs": [{"t": "完善"}, {"a": "同级监督"}, {"t": "制度机制，领导班子成员要履行维护民主集中制的政治责任、加强相互监督，发现“一把手”存在问题应当坦诚提出，发现重要问题应当向上级党组织报告。"}], "answers": ["同级监督"]}, {"no": 22, "segs": [{"t": "全面从严治党关键在"}, {"a": "从严治吏"}, {"t": "。必须贯彻新时代党的组织路线，严格干部教育培养、选拔任用、管理监督，建设一支政治过硬、本领高强、作风优良、纪律严明的高素质干部队伍。"}], "answers": ["从严治吏"]}, {"no": 23, "segs": [{"t": "坚持"}, {"a": "党管干部"}, {"t": "原则，坚持德才兼备、以德为先，坚持五湖四海、任人唯贤，坚持事业为上、公道正派。"}], "answers": ["党管干部"]}, {"no": 24, "segs": [{"t": "严格执行干部选拔任用原则和程序，坚持组织选人、"}, {"a": "公正用人"}, {"t": "、以事择人，发挥党组织领导和把关作用。"}], "answers": ["公正用人"]}, {"no": 25, "segs": [{"t": "深化"}, {"a": "政绩观教育"}, {"t": "，引导干部坚持立党为公、为民造福、科学决策、真抓实干，创造经得起实践、人民、历史检验的实绩。"}], "answers": ["政绩观教育"]}, {"no": 26, "segs": [{"t": "推动干部尤其是领导干部深入"}, {"a": "调查研究"}, {"t": "，结合实际谋划思路、解决问题、改进工作。推动干部加快知识更新，提高专业素养，补齐能力短板，成为本职工作的行家里手。"}], "answers": ["调查研究"]}, {"no": 27, "segs": [{"t": "把"}, {"a": "基层一线"}, {"t": "作为培养年轻干部的基础阵地，推动年轻干部到艰苦地区、复杂环境、吃劲岗位墩苗锻炼，砥砺品质、改进作风、增长才干。"}], "answers": ["基层一线"]}, {"no": 28, "segs": [{"t": "完善领导干部"}, {"a": "个人有关事项"}, {"t": "报告制度，对家庭财产和支出明显超出正常收入的进行查核验证。"}], "answers": ["个人有关事项"]}, {"no": 29, "segs": [{"t": "落实"}, {"a": "谈心谈话"}, {"t": "制度，及时了解干部思想动态、工作状态、身心健康状况、家庭情况等，有针对性地加强教育引导。"}], "answers": ["谈心谈话"]}, {"no": 30, "segs": [{"t": "坚持"}, {"a": "党管人才"}, {"t": "原则，加强对人才的政治引领和政治吸纳，深化人才发展体制机制改革，一体推进教育科技人才发展，全方位培养、引进、用好人才，强化人才支持和服务保障，激励广大人才爱党报国、敬业奉献、服务人民，把各方面优秀人才集聚到党和人民事业中来。"}], "answers": ["党管人才"]}, {"no": 31, "segs": [{"a": "党的各级组织"}, {"t": "是全面从严治党的主体。"}], "answers": ["党的各级组织"]}, {"no": 32, "segs": [{"t": "把"}, {"a": "中央和国家机关"}, {"t": "建设成为讲政治、守纪律、负责任、有效率的模范机关。"}], "answers": ["中央和国家机关"]}, {"no": 33, "segs": [{"t": "坚持"}, {"a": "地方党委"}, {"t": "在本地区发挥总揽全局、协调各方的领导作用，履行把方向、管大局、作决策、保落实职责，把地方党委建设成为坚决听从党中央指挥、执行有力、管理严格、班子团结、风气纯正的坚强组织。"}], "answers": ["地方党委"]}, {"no": 34, "segs": [{"t": "强化"}, {"a": "大抓基层"}, {"t": "鲜明导向，坚持补短板、填空白和提质量、强功能并举，把基层党组织建设成为有效实现党的领导的坚强战斗堡垒。"}], "answers": ["大抓基层"]}, {"no": 35, "segs": [{"t": "分类完善"}, {"a": "新兴领域"}, {"t": "党建管理体制和责任体系，压实行业管理和业务监管部门、业务主管单位及属地等责任，增强党在新兴领域号召力凝聚力影响力。"}], "answers": ["新兴领域"]}, {"no": 36, "segs": [{"t": "坚持把政治标准放在首位，严格程序、严格把关、严肃纪律，提高发展党员质量，防止"}, {"a": "动机不纯的人"}, {"t": "入党。"}], "answers": ["动机不纯的人"]}, {"no": 37, "segs": [{"a": "正风肃纪"}, {"t": "是全面从严治党的有力举措。"}], "answers": ["正风肃纪"]}, {"no": 38, "segs": [{"t": "深化马克思主义群众观点和党的"}, {"a": "群众路线"}, {"t": "教育，引导党员、干部强化宗旨意识、公仆意识，站稳人民立场，增进同群众的感情，防止高高在上、脱离群众。"}], "answers": ["群众路线"]}, {"no": 39, "segs": [{"t": "把"}, {"a": "中央八项规定"}, {"t": "作为必须长期坚持的铁规矩、硬杠杠。"}], "answers": ["中央八项规定"]}, {"no": 40, "segs": [{"t": "推进整治形式主义为基层减负，统筹规范督查检查考核，规范创建示范、达标和评比表彰活动，清理规范节庆展会论坛活动，整治“"}, {"a": "指尖上的形式主义"}, {"t": "”，落实乡镇（街道）履行职责事项清单，健全村（社区）工作事项准入制度。"}], "answers": ["指尖上的形式主义"]}, {"no": 41, "segs": [{"t": "推进作风建设"}, {"a": "常态化长效化"}, {"t": "。把作风建设融入日常、抓在经常，防止消极应付和疲劳厌战，纠正作风问题“小节论”“特殊论”。"}], "answers": ["常态化长效化"]}, {"no": 42, "segs": [{"t": "坚持有纪必依、执纪必严、违纪必究，对违纪问题发现一起查处一起，绝不"}, {"a": "姑息迁就"}, {"t": "。"}], "answers": ["姑息迁就"]}, {"no": 43, "segs": [{"t": "坚持惩前毖后、治病救人，深化运用监督执纪“"}, {"a": "四种形态"}, {"t": "”，注重用好“第一种形态”，层层设防，最大限度教育挽救党员、干部。"}], "answers": ["四种形态"]}, {"no": 44, "segs": [{"t": "一体推进"}, {"a": "不敢腐、不能腐、不想腐"}, {"t": "是全面从严治党的重要方略和反腐败斗争的基本方针。"}], "answers": ["不敢腐、不能腐、不想腐"]}, {"no": 45, "segs": [{"t": "深刻认识反腐败斗争形势仍然严峻复杂、铲除腐败滋生土壤和条件任务仍然艰巨繁重，坚持有腐必反、有贪必肃、除恶务尽，坚决“打虎”“拍蝇”“猎狐”，始终保持战略定力和战斗韧性，一刻不停歇、半步不退让，更加有力遏制增量、更加有效清除存量，决不让腐败分子有藏身之地，决不允许有“"}, {"a": "铁帽子王"}, {"a": "”“"}, {"a": "丹书铁券"}, {"t": "”。"}], "answers": ["铁帽子王", "”“", "丹书铁券"]}, {"no": 46, "segs": [{"t": "加强"}, {"a": "新时代廉洁文化"}, {"t": "建设，丰富内容和载体，教育引导党员、干部自重自省、慎独慎微，自觉拒腐防变。"}], "answers": ["新时代廉洁文化"]}, {"no": 47, "segs": [{"t": "加强"}, {"a": "党内法规制度建设"}, {"t": "是全面从严治党的长远之策、根本之策。"}], "answers": ["党内法规制度建设"]}, {"no": 48, "segs": [{"t": "必须坚持把"}, {"a": "党章"}, {"t": "作为全党的根本行为规范，深化党的建设制度改革，推动依法治国和依规治党有机统一，为持之以恒推进全面从严治党提供有力制度保障。"}], "answers": ["党章"]}, {"no": 49, "segs": [{"t": "持之以恒推进全面从严治党，必须进一步完善"}, {"a": "党和国家监督体系"}, {"t": "。"}], "answers": ["党和国家监督体系"]}, {"no": 50, "segs": [{"t": "持之以恒推进全面从严治党，是全党的"}, {"a": "共同政治责任"}, {"t": "。"}], "answers": ["共同政治责任"]}, {"no": 51, "segs": [{"t": "中国共产主义青年团是中国共产党领导的先进青年的"}, {"a": "群团组织"}, {"t": "，是广大青年在实践中学习中国特色社会主义和共产主义的学校，是中国共产党的助手和后备军。"}], "answers": ["群团组织"]}, {"no": 52, "segs": [{"t": "中国共产主义青年团贯彻"}, {"a": "党管青年"}, {"t": "原则，充分发挥党联系青年的桥梁和纽带作用，为党做好青年群众工作。"}], "answers": ["党管青年"]}, {"no": 53, "segs": [{"t": "入团青年必须是年龄在"}, {"a": "14"}, {"t": "周岁以上、"}, {"a": "28"}, {"t": "周岁以下的中国青年。"}], "answers": ["14", "28"]}, {"no": 54, "segs": [{"t": "入团积极分子在发展入团之前，应当参加不少于"}, {"a": "8"}, {"t": "学时的团课学习。"}], "answers": ["8"]}, {"no": 55, "segs": [{"t": "申请入团的青年要有"}, {"a": "2"}, {"t": "名团员作介绍人。"}], "answers": ["2"]}, {"no": 56, "segs": [{"t": "留团察看期间的团员，"}, {"a": "不得作青年入团的介绍人"}, {"t": "。"}], "answers": ["不得作青年入团的介绍人"]}, {"no": 57, "segs": [{"t": "讨论接收新团员的支部大会，有表决权的到会人数必须超过应到会有表决权人数的"}, {"a": "半数"}, {"t": "才能举行。"}], "answers": ["半数"]}, {"no": 58, "segs": [{"t": "入团青年必须承认团的"}, {"a": "章程"}, {"t": "。"}], "answers": ["章程"]}, {"no": 59, "segs": [{"t": "对提出入团申请的青年，团组织应当在一个月内派人同其谈话、了解基本情况；"}, {"a": "入团积极分子"}, {"t": "应当在入团申请人中择优确定，并经支部委员会研究决定、报基层团（工）委批准。"}], "answers": ["入团积极分子"]}, {"no": 60, "segs": [{"t": "新团员必须参加"}, {"a": "入团仪式"}, {"t": "，在"}, {"a": "团旗"}, {"t": "下进行入团宣誓。"}], "answers": ["入团仪式", "团旗"]}, {"no": 61, "segs": [{"t": "被批准入团的青年，从"}, {"a": "支部大会通过"}, {"t": "之日取得团籍并计算团龄。"}], "answers": ["支部大会通过"]}, {"no": 62, "segs": [{"t": "团员受留团察看处分，察看期间其团员证由组织"}, {"a": "收回"}, {"t": "，察看期满恢复团员权利后发还本人并及时注册。"}], "answers": ["收回"]}, {"no": 63, "segs": [{"t": "新发展的团员实行全国统一编号制度，每名新团员都有唯一的"}, {"a": "发展团员编号"}, {"t": "。"}], "answers": ["发展团员编号"]}, {"no": 64, "segs": [{"t": "“推优”工作以"}, {"a": "团支部"}, {"t": "为单位进行。"}], "answers": ["团支部"]}, {"no": 65, "segs": [{"t": "团员"}, {"a": "3人"}, {"t": "以上集体外出的，可不转移组织关系，由原所在团组织在他们中建立临时团支部。"}], "answers": ["3人"]}, {"no": 66, "segs": [{"t": "团员凭团员证或"}, {"a": "团员组织关系介绍信"}, {"t": "转接组织关系，均为有效。"}], "answers": ["团员组织关系介绍信"]}, {"no": 67, "segs": [{"t": "干部团员的档案，由"}, {"a": "党委组织人事部门"}, {"t": "统一管理。"}], "answers": ["党委组织人事部门"]}, {"no": 68, "segs": [{"t": "团员档案（入团志愿书）：在建有人事档案的单位入团的，转接组织关系时应随"}, {"a": "人事档案一并转移"}, {"t": "；在未建有人事档案的单位入团的，由所在基层团委保存。"}], "answers": ["人事档案一并转移"]}, {"no": 69, "segs": [{"t": "入团青年必须愿意参加团的一个组织并在其中"}, {"a": "积极工作、执行团的决议和按期交纳团费"}, {"t": "。"}], "answers": ["积极工作、执行团的决议和按期交纳团费"]}, {"no": 70, "segs": [{"t": "团员年度团籍注册以"}, {"a": "团支部"}, {"t": "为单位进行。"}], "answers": ["团支部"]}, {"no": 71, "segs": [{"t": "团员档案中不包括"}, {"a": "入党志愿书"}, {"t": "。"}], "answers": ["入党志愿书"]}, {"no": 72, "segs": [{"t": "入团宣誓一般由"}, {"a": "团组织负责人或优秀团员代表"}, {"t": "领誓，并向新团员颁发团徽徽章和团员证。"}], "answers": ["团组织负责人或优秀团员代表"]}, {"no": 73, "segs": [{"t": "团员年度团籍注册的时间为"}, {"a": "上年度第四季度至本年度第一季度"}, {"t": "。"}], "answers": ["上年度第四季度至本年度第一季度"]}, {"no": 74, "segs": [{"t": "团员年满"}, {"a": "28"}, {"t": "岁，没有担任团内职务，应当办理离团手续。"}], "answers": ["28"]}, {"no": 75, "segs": [{"t": "团员没有正当理由，连续"}, {"a": "六个月"}, {"t": "不参加团的组织生活，被认为是自行脱团。"}], "answers": ["六个月"]}, {"no": 76, "segs": [{"t": "团员自愿多交团费不限。自愿一次多交纳"}, {"a": "1000"}, {"t": "元以上的团费，全部上缴团中央。"}], "answers": ["1000"]}, {"no": 77, "segs": [{"t": "对无正当理由，连续"}, {"a": "6"}, {"t": "个月不交纳团费的团员，按自行脱团处理。"}], "answers": ["6"]}, {"no": 78, "segs": [{"t": "中国共产党主张按照"}, {"a": "“一个国家，两种制度”"}, {"t": "的方针，促进香港特别行政区，澳门特别行政区长期繁荣稳定，完成祖国统一大业。"}], "answers": ["“一个国家，两种制度”"]}, {"no": 79, "segs": [{"t": "共青团的最终奋斗目标是"}, {"a": "实现共产主义"}, {"t": "。"}], "answers": ["实现共产主义"]}, {"no": 80, "segs": [{"t": "中国青年运动的旗帜是"}, {"a": "爱国主义"}, {"t": "。"}], "answers": ["爱国主义"]}, {"no": 81, "segs": [{"t": "团员在"}, {"a": "100"}, {"t": "人以上的单位，可以建立团的基层委员会。"}], "answers": ["100"]}, {"no": 82, "segs": [{"t": "中国共产主义青年团团歌的名字是"}, {"a": "光荣啊！中国共青团"}, {"t": "。"}], "answers": ["光荣啊！中国共青团"]}, {"no": 83, "segs": [{"t": "在新的征程上，广大青年要认真学习"}, {"a": "习近平新时代中国特色社会主义思想"}, {"t": "，掌握贯穿其中的世界观和方法论，深刻领悟“两个确立”的决定性意义，不断增强“四个意识”、坚定“四个自信”、坚决做到“两个维护”。"}], "answers": ["习近平新时代中国特色社会主义思想"]}, {"no": 84, "segs": [{"t": "中国共产党第二十次全国代表大会的主题是"}, {"a": "高举中国特色社会主义伟大旗帜，全面贯彻习近平新时代中国特色社会主义思想，弘扬伟大建党精神，自信自强、守正创新，踔厉奋发、勇毅前行，为全面建设社会主义现代化国家、全面推进中华民族伟大复兴而团结奋斗"}, {"t": "。"}], "answers": ["高举中国特色社会主义伟大旗帜，全面贯彻习近平新时代中国特色社会主义思想，弘扬伟大建党精神，自信自强、守正创新，踔厉奋发、勇毅前行，为全面建设社会主义现代化国家、全面推进中华民族伟大复兴而团结奋斗"]}, {"no": 85, "segs": [{"t": "共青团的地方各级组织受"}, {"a": "同级党的委员会、共青团上级组织"}, {"t": "领导。"}], "answers": ["同级党的委员会、共青团上级组织"]}, {"no": 86, "segs": [{"t": "党要支持共青团开展工作，充分发挥团的"}, {"a": "突击队、联系青年的桥梁"}, {"t": "作用。"}], "answers": ["突击队、联系青年的桥梁"]}, {"no": 87, "segs": [{"t": "习近平总书记同团中央新一届领导班子成员集体谈话时发表的讲话指出：共青团是党的"}, {"a": "助手"}, {"t": "和"}, {"a": "后备军"}, {"t": "，这体现了我们党对共青团的高度信任和殷切期望。"}], "answers": ["助手", "后备军"]}, {"no": 88, "segs": [{"t": "河南科技大学校训是"}, {"a": "明德博学、日新笃行。"}], "answers": ["明德博学、日新笃行。"]}, {"no": 89, "segs": [{"t": "以习近平同志为核心的党中央从坚持和发展中国特色社会主义全局出发提出的战略布局是"}, {"a": "全面建设社会主义现代化国家、全面深化改革、全面依法治国、全面从严治党"}], "answers": ["全面建设社会主义现代化国家、全面深化改革、全面依法治国、全面从严治党"]}, {"no": 90, "segs": [{"t": "团的地方各级代表大会的职权是"}, {"a": "审查和批准同级委员会的工作报告；讨论和决定本地区的团工作任务和有关重要事项；选举同级委员会；选举出席上一级团的代表大会代表"}], "answers": ["审查和批准同级委员会的工作报告；讨论和决定本地区的团工作任务和有关重要事项；选举同级委员会；选举出席上一级团的代表大会代表"]}, {"no": 91, "segs": [{"t": "“六团”活动是指"}, {"a": "举团旗、唱团歌、戴团徽、学团章、过团日、上团课"}], "answers": ["举团旗、唱团歌、戴团徽、学团章、过团日、上团课"]}, {"no": 92, "segs": [{"t": "团员享有下列哪些权利"}, {"a": "参加团组织开展的各类活动、接受团组织的教育和培训、在团内有选举权和被选举权。"}], "answers": ["参加团组织开展的各类活动、接受团组织的教育和培训、在团内有选举权和被选举权。"]}, {"no": 93, "segs": [{"t": "团的各级领导干部要做团员和青年的表率，因此，他们必须做到"}, {"a": "政治坚强、学习刻苦、工作勤奋、作风扎实、品德高尚。"}], "answers": ["政治坚强、学习刻苦、工作勤奋、作风扎实、品德高尚。"]}, {"no": 94, "segs": [{"t": "中国共产主义青年团团徽的内容有"}, {"a": "初升的太阳及其光芒、写有“中国共青团”五字绶带、麦穗、齿轮、团旗。"}], "answers": ["初升的太阳及其光芒、写有“中国共青团”五字绶带、麦穗、齿轮、团旗。"]}, {"no": 95, "segs": [{"t": "成为一名优秀团员的基本条件"}, {"a": "认真学习中国特色社会主义理论，学习党的基本知识，具有坚定的共产主义信念和坚持走中国特色社会主义道路的信心；能够模范履行和正确行使团章规定的团员的义务和权"}, {"a": "利"}, {"a": "；出色地完成自身的学习和教学、科研及管理服务等工作任务，学生的学习成绩优良；在团组织开展的各项活动中，发挥了模范带头作用。"}], "answers": ["认真学习中国特色社会主义理论，学习党的基本知识，具有坚定的共产主义信念和坚持走中国特色社会主义道路的信心；能够模范履行和正确行使团章规定的团员的义务和权", "利", "；出色地完成自身的学习和教学、科研及管理服务等工作任务，学生的学习成绩优良；在团组织开展的各项活动中，发挥了模范带头作用。"]}, {"no": 96, "segs": [{"t": "团的基层组织是团的工作和活动的基本单位，应该充分发挥团结教育青年的核心作用，它的基本任务是"}, {"a": "了解和反映团员与青年的思想、要求，维护他们的权益；对团员进行党的基本知识教育，推荐优秀团员作党的发展对象。"}], "answers": ["了解和反映团员与青年的思想、要求，维护他们的权益；对团员进行党的基本知识教育，推荐优秀团员作党的发展对象。"]}, {"no": 97, "segs": [{"t": "当代大学生要旗帜鲜明讲政治，牢固树立“四个意识”。“四个意识”指的是"}, {"a": "政治意识、大局意识、核心意识、看齐意识"}, {"t": "。"}], "answers": ["政治意识、大局意识、核心意识、看齐意识"]}, {"no": 98, "segs": [{"t": "当代大学生要坚定“四个自信”。“四个自信”指的是"}, {"a": "道路自信、理论自信、制度自信、文化自信"}, {"t": "。"}], "answers": ["道路自信、理论自信、制度自信、文化自信"]}, {"no": 99, "segs": [{"t": "要保持和增强"}, {"a": "政治性"}, {"t": "、"}, {"a": "先进性"}, {"t": "、"}, {"a": "群众性"}, {"t": "，把共青团建设得更加充满活力、更加坚强有力。"}], "answers": ["政治性", "先进性", "群众性"]}, {"no": 100, "segs": [{"t": "团的基层“三会两制一课”制度中，“三会”是指"}, {"a": "团支部团员大会、支部委员会、团小组会。"}], "answers": ["团支部团员大会、支部委员会、团小组会。"]}, {"no": 101, "segs": [{"t": "四项基本原则是指"}, {"a": "坚持中国共产党的领导、坚持社会主义道路、坚持人民民主专政、坚持马列主义毛泽东思想"}, {"t": "，这是我们的立国之本。"}], "answers": ["坚持中国共产党的领导、坚持社会主义道路、坚持人民民主专政、坚持马列主义毛泽东思想"]}, {"no": 102, "segs": [{"t": "遵循"}, {"a": "共商、共建、共享"}, {"t": "原则，推进“一带一路”建设。"}], "answers": ["共商、共建、共享"]}, {"no": 103, "segs": [{"t": "2021年4月19日，习近平在清华大学考察时强调，百年大计，教育为本。党和国家事业发展对"}, {"a": "高等教育"}, {"t": "的需要，对"}, {"a": "科学知识和优秀人才"}, {"t": "的需要，比以往任何时候都更为迫切。我们要建设的世界一流大学是"}, {"a": "中国特色社会主义的一流大学"}, {"t": "，我国社会主义教育就是要"}, {"a": "培育德智体美劳全面发展的社会主义建设者和接班人"}, {"t": "。"}], "answers": ["高等教育", "科学知识和优秀人才", "中国特色社会主义的一流大学", "培育德智体美劳全面发展的社会主义建设者和接班人"]}, {"no": 104, "segs": [{"t": "习近平在清华大学考察时强调，我国高等教育要立足"}, {"a": "中华民族伟大复兴战略全局"}, {"t": "和"}, {"a": "世界百年未有之大变局"}, {"t": "，心怀“"}, {"a": "国之大者"}, {"t": "”，把握大势，敢于担当，善于作为，为服务国家富强、民族复兴、人民幸福贡献力量。"}], "answers": ["中华民族伟大复兴战略全局", "世界百年未有之大变局", "国之大者"]}, {"no": 105, "segs": [{"t": "习近平在清华大学考察时强调，大学教师对学生承担着"}, {"a": "传授知识、培养能力、塑造正确人生观"}, {"t": "的职责。教师要成为大先生，做学生"}, {"a": "为学、为事、为人"}, {"t": "的示范，促进学生成长为全面发展的人。要研究真问题，着眼"}, {"a": "世界学术前沿和国家重大需求"}, {"t": "，致力于解决实际问题，善于学习新知识、新技术、新理论。要坚定信念，始终"}, {"a": "同党和人民站在一起"}, {"t": "，自觉做中国特色社会主义的坚定信仰者和忠实实践者。"}], "answers": ["传授知识、培养能力、塑造正确人生观", "为学、为事、为人", "世界学术前沿和国家重大需求", "同党和人民站在一起"]}, {"no": 106, "segs": [{"t": "新中国成立以来，我国高等教育走过了从小到大、从弱到强的极不平凡历程，"}, {"a": "办学规模"}, {"t": "、"}, {"a": "培养质量"}, {"t": "、"}, {"a": "服务能力"}, {"t": "实现历史性跃升。"}], "answers": ["办学规模", "培养质量", "服务能力"]}, {"no": 107, "segs": [{"t": "习近平在清华大学考察时强调，广大青年要肩负"}, {"a": "历史使命"}, {"t": "，坚定"}, {"a": "前进信心"}, {"t": "，"}, {"a": "立大志、明大德、成大才、担大任"}, {"t": "，努力成为堪当民族复兴重任的时代新人，让青春在"}, {"a": "为祖国、为民族、为人民、为人类"}, {"t": "的不懈奋斗中绽放绚丽之花。"}], "answers": ["历史使命", "前进信心", "立大志、明大德、成大才、担大任", "为祖国、为民族、为人民、为人类"]}, {"no": 108, "segs": [{"t": "习近平在清华大学考察时指出，一流大学建设要坚持"}, {"a": "党的领导"}, {"t": "，坚持"}, {"a": "马克思主义指导地位"}, {"t": "，全面贯彻"}, {"a": "党的教育方针"}, {"t": "，坚持"}, {"a": "社会主义办学方向"}, {"t": "，抓住历史机遇，紧扣时代脉搏，立足新发展阶段、贯彻新发展理念、服务构建新发展格局，把发展科技第一生产力、培养人才第一资源、增强创新第一动力更好结合起来，更好地为改革开放和社会主义现代化建设服务。"}], "answers": ["党的领导", "马克思主义指导地位", "党的教育方针", "社会主义办学方向"]}, {"no": 109, "segs": [{"t": "坚持不忘初心、继续前进，就要坚持中国特色社会主义"}, {"a": "道路自信、理论自信、制度自信、文化自信"}, {"t": "。"}], "answers": ["道路自信、理论自信、制度自信、文化自信"]}, {"no": 110, "segs": [{"t": "必须按照中国特色社会主义事业总体布局，全面推进经济建设，政治建设，文化建设，"}, {"a": "生态文明建设、社会建设。"}], "answers": ["生态文明建设、社会建设。"]}, {"no": 111, "segs": [{"t": "中国共产党在社会主义初级阶段的基本路线是：领导和团结全国各族人民，"}, {"a": "以经济建设为中心、坚持四项基本原则、坚持改革开放、自力更生，艰苦创业"}, {"t": "，为把我国建设成为富强民主文明和谐美丽的社会主义现代化强国而奋斗"}], "answers": ["以经济建设为中心、坚持四项基本原则、坚持改革开放、自力更生，艰苦创业"]}, {"no": 112, "segs": [{"t": "坚持改革开放，是我们的强国之路。只有改革开放，才能"}, {"a": "发展中国、发展社会主义、发展马克思主义"}, {"t": "。"}], "answers": ["发展中国、发展社会主义、发展马克思主义"]}, {"no": 113, "segs": [{"t": "加强社会主义核心价值体系建设，"}, {"a": "坚持马克思主义指导思想；树立中国特色社会主义共同理想；弘扬以爱国主义为核心的民族精神和以改革创新为核心的时代精神；倡导社会主义荣辱观"}, {"t": "，增强民族自尊，自信和自强精神，抵御资本主义和封建主义腐朽思想的侵蚀，扫除各种社会丑恶现象，努力使我国人民成为有理想，有道德，有文化，有纪律的人民。"}], "answers": ["坚持马克思主义指导思想；树立中国特色社会主义共同理想；弘扬以爱国主义为核心的民族精神和以改革创新为核心的时代精神；倡导社会主义荣辱观"]}, {"no": 114, "segs": [{"t": "发展社会主义文化，必须"}, {"a": "大力发展教育、科学、文化事业，推动优秀传统文化创造性转化、创新性发展，继承革命文化。"}], "answers": ["大力发展教育、科学、文化事业，推动优秀传统文化创造性转化、创新性发展，继承革命文化。"]}, {"no": 115, "segs": [{"t": "建设社会主义生态文明，着力建设"}, {"a": "资源节约型、环境友好型"}, {"t": "社会。"}], "answers": ["资源节约型、环境友好型"]}, {"no": 116, "segs": [{"t": "构建社会主义和谐社会的总要求包括的内容有："}, {"a": "民主法治"}, {"t": "，"}, {"a": "公平正义"}, {"t": "，诚信友爱，充满活力，安定有序，"}, {"a": "人与自然和谐相处"}, {"t": "。"}], "answers": ["民主法治", "公平正义", "人与自然和谐相处"]}, {"no": 117, "segs": [{"t": "建设社会主义生态文明，坚持"}, {"a": "节约资源和保护环境"}, {"t": "的基本国策，坚持"}, {"a": "节约优先、保护优先、自然恢复"}, {"t": "的方针，坚持"}, {"a": "生产发展、生活富裕、生态良好"}, {"t": "的文明发展道路。"}], "answers": ["节约资源和保护环境", "节约优先、保护优先、自然恢复", "生产发展、生活富裕、生态良好"]}, {"no": 118, "segs": [{"t": "建设生态文明，着力建设"}, {"a": "资源节约型、环境友好型社会"}, {"t": "。"}], "answers": ["资源节约型、环境友好型社会"]}, {"no": 119, "segs": [{"t": "构建社会主义和谐社会的总要求是："}, {"a": "民主法治、公平正义、诚信友爱、充满活力、安定有序、人与自然和谐相处"}, {"t": "。"}], "answers": ["民主法治、公平正义、诚信友爱、充满活力、安定有序、人与自然和谐相处"]}, {"no": 120, "segs": [{"t": "建设生态文明，坚持节约资源和保护环境的基本国策，坚持"}, {"a": "节约优先、保护优先、自然恢复为主"}, {"t": "的方针，坚持"}, {"a": "生产发展、生活富裕、生态良好"}, {"t": "的文明发展道路。"}], "answers": ["节约优先、保护优先、自然恢复为主", "生产发展、生活富裕、生态良好"]}, {"no": 121, "segs": [{"t": "坚持四项基本原则，是我们的"}, {"a": "立国之本"}, {"t": "；坚持改革开放，是我们的"}, {"a": "强国之路"}, {"t": "。"}], "answers": ["立国之本", "强国之路"]}, {"no": 122, "segs": [{"t": "我国"}, {"a": "正处于并将长期处于社会主义初级阶段"}, {"t": "，这是在原本经济文化落后的中国建设社会主义现代化"}, {"a": "不可逾越的历史阶段"}, {"t": "。"}], "answers": ["正处于并将长期处于社会主义初级阶段", "不可逾越的历史阶段"]}, {"no": 123, "segs": [{"t": "中国邮政集团有限公司绍兴市分公司皋埠特快揽投部揽投员阮海良表示，要带头发挥引领作用，将总书记的嘱托和期望传达到邮政快递行业青年群体中，团结动员行业青年立足本职岗位，做勤劳的、为民服务的“"}, {"a": "小蜜蜂"}, {"t": "”，做"}, {"a": "有理想、敢担当、能吃苦、肯奋斗的新时代好青年"}, {"t": "。"}], "answers": ["小蜜蜂", "有理想、敢担当、能吃苦、肯奋斗的新时代好青年"]}, {"no": 124, "segs": [{"t": "在团的基层“三会两制一课”制度里，“三会”包括"}, {"a": "支部团员大会、支部委员会、团小组会"}, {"t": "。"}], "answers": ["支部团员大会、支部委员会、团小组会"]}, {"no": 125, "segs": [{"t": "习近平总书记在党的二十大报告中指出：新时代十年的伟大变革，在"}, {"a": "党史、新中国史、改革开放史、社会主义发展史、中华民族发展史"}, {"t": "上具有"}, {"a": "里程碑意义"}, {"t": "。"}], "answers": ["党史、新中国史、改革开放史、社会主义发展史、中华民族发展史", "里程碑意义"]}, {"no": 126, "segs": [{"t": "习近平总书记在党的二十大开幕会上提出，从现在起，中国共产党的中心任务就是团结带领全国各族人民"}, {"a": "全面建成社会主义现代化强国、实现第二个百年奋斗目标，以中国式现代化全面推进中华民族伟大复兴"}, {"t": "。"}], "answers": ["全面建成社会主义现代化强国、实现第二个百年奋斗目标，以中国式现代化全面推进中华民族伟大复兴"]}, {"no": 127, "segs": [{"t": "从现在起，全面建成社会主义现代化强国、实现第二个百年奋斗目标，以中国式现代化全面推进中华民族伟大复兴，是"}, {"a": "党的中心任务"}, {"t": "，也是"}, {"a": "新时代中国青年运动和青年工作的鲜明主题"}, {"t": "。"}], "answers": ["党的中心任务", "新时代中国青年运动和青年工作的鲜明主题"]}, {"no": 128, "segs": [{"t": "“三会两制一课”中的“三会”是指"}, {"a": "支部团员大会、支部委员会、团小组会"}, {"t": "。"}], "answers": ["支部团员大会、支部委员会、团小组会"]}, {"no": 129, "segs": [{"t": "习近平总书记在二十届中共中央政治局常委同中外记者见面时指出，我们要始终"}, {"a": "与人民风雨同舟、与人民心心相印、想人民之所想、行人民之所嘱"}, {"t": "，不断把人民对美好生活的向往变为现实。"}], "answers": ["与人民风雨同舟、与人民心心相印、想人民之所想、行人民之所嘱"]}, {"no": 130, "segs": [{"t": "在"}, {"a": "2022年10月23日"}, {"t": "召开的中国共产党第二十届中央委员会第一次全体会议上，选举产生了"}, {"a": "新一届中央领导机构"}, {"t": "。"}], "answers": ["2022年10月23日", "新一届中央领导机构"]}, {"no": 131, "segs": [{"t": "党的十八大以来的十年，我们经历了对党和人民事业具有重大现实意义和深远历史意义的三件大事：一是"}, {"a": "迎来中国共产党成立一百周年"}, {"t": "，二是"}, {"a": "中国特色社会主义进入新时代"}, {"t": "，三是"}, {"a": "完成脱贫攻坚、全面建成小康社会的历史任务"}, {"t": "，实现第一个百年奋斗目标。这是中国共产党和中国人民团结奋斗赢得的历史性胜利，是彪炳中华民族发展史册的历史性胜利，也是对世界具有深远影响的历史性胜利。"}], "answers": ["迎来中国共产党成立一百周年", "中国特色社会主义进入新时代", "完成脱贫攻坚、全面建成小康社会的历史任务"]}, {"no": 132, "segs": [{"t": "我国高等教育要立足"}, {"a": "中华民族伟大复兴战略全局"}, {"t": "和"}, {"a": "世界百年未有之大变局"}, {"t": "。"}], "answers": ["中华民族伟大复兴战略全局", "世界百年未有之大变局"]}, {"no": 133, "segs": [{"t": "习近平在清华大学考察时指出，一个国家的高等教育体系需要有"}, {"a": "一流大学群体的有力支撑"}, {"t": "，一流大学群体的水平和质量决定了高等教育体系的水平和质量。"}], "answers": ["一流大学群体的有力支撑"]}, {"no": 134, "segs": [{"t": "国务院印发《“十三五”国家科技创新规划》，强调坚持"}, {"a": "创新是引领发展的第一动力"}, {"t": "，大力推进以科技创新为核心的全面创新。"}], "answers": ["创新是引领发展的第一动力"]}, {"no": 135, "segs": [{"t": "一个国家、一个民族不能没有"}, {"a": "灵魂"}, {"t": "。"}], "answers": ["灵魂"]}, {"no": 136, "segs": [{"t": "疫情对全球生产和需求造成全面冲击，各国应该联手加大"}, {"a": "宏观政策对冲力度"}, {"t": "，防止世界经济陷入衰退。"}], "answers": ["宏观政策对冲力度"]}, {"no": 137, "segs": [{"t": "我国贫困人口从2012年年底的"}, {"a": "9899万人"}, {"t": "减到2019年年底的"}, {"a": "551万人"}, {"t": "，贫困发生率由10.2%降至0.6%，2013—2019年连续7年每年减贫1000万人以上。"}], "answers": ["9899万人", "551万人"]}, {"no": 138, "segs": [{"t": "新冠疫情防控期间，我国坚持“"}, {"a": "外防输入、内防反弹"}, {"t": "”总策略和“"}, {"a": "动态清零"}, {"t": "”总方针。"}], "answers": ["外防输入、内防反弹", "动态清零"]}, {"no": 139, "segs": [{"t": "2021年4月19日，习近平在清华大学考察时强调，"}, {"a": "百年大计，教育为本"}, {"t": "。"}], "answers": ["百年大计，教育为本"]}, {"no": 140, "segs": [{"t": "2021年2月25日，习近平在全国脱贫攻坚总结表彰大会上指出，坚持"}, {"a": "以人民为中心的发展思想"}, {"t": "，坚定不移走"}, {"a": "共同富裕"}, {"t": "道路。"}], "answers": ["以人民为中心的发展思想", "共同富裕"]}, {"no": 141, "segs": [{"t": "社会主义制度的发展和完善是一个"}, {"a": "长期的历史过程"}, {"t": "。"}], "answers": ["长期的历史过程"]}, {"no": 142, "segs": [{"t": "我国处在"}, {"a": "社会主义初级阶段"}, {"t": "，是邓小平和我们党对当代中国基本国情的科学判断。"}], "answers": ["社会主义初级阶段"]}, {"no": 143, "segs": [{"t": "中国共产主义青年团是党的"}, {"a": "助手和后备军"}, {"t": "。"}], "answers": ["助手和后备军"]}, {"no": 144, "segs": [{"t": "共青团中央委员会受"}, {"a": "党中央委员会领导"}, {"t": "。"}], "answers": ["党中央委员会领导"]}, {"no": 145, "segs": [{"t": "共青团的地方各级组织受"}, {"a": "同级党的委员会领导"}, {"t": "，同时受"}, {"a": "共青团上级组织领导"}, {"t": "。"}], "answers": ["同级党的委员会领导", "共青团上级组织领导"]}, {"no": 146, "segs": [{"a": "先进性和纯洁性"}, {"t": "是马克思主义政党的本质属性。"}], "answers": ["先进性和纯洁性"]}, {"no": 147, "segs": [{"t": "对团的决议如有不同的意见，在"}, {"a": "坚决执行"}, {"t": "的前提下，可以"}, {"a": "保留"}, {"t": "，并且可以向团的上级组织提出。"}], "answers": ["坚决执行", "保留"]}, {"no": 148, "segs": [{"t": "“"}, {"a": "三会两制一课"}, {"t": "”制度是团的组织生活的"}, {"a": "基本制度"}, {"t": "，是对团员进行教育和管理的重要形式。"}], "answers": ["三会两制一课", "基本制度"]}, {"no": 149, "segs": [{"t": "《团章》规定，团的各级代表大会的代表和委员会选举采用"}, {"a": "无记名投票"}, {"t": "的方式。"}], "answers": ["无记名投票"]}, {"no": 150, "segs": [{"t": "在现阶段，阶级斗争还将在一定范围内长期存在，但已经不是我国社会的"}, {"a": "主要矛盾"}, {"t": "。"}], "answers": ["主要矛盾"]}, {"no": 151, "segs": [{"t": "共青团的地方各级组织既要受"}, {"a": "同级党的委员会领导"}, {"t": "，又要受"}, {"a": "共青团上级组织领导"}, {"t": "。"}], "answers": ["同级党的委员会领导", "共青团上级组织领导"]}, {"no": 152, "segs": [{"t": "团的县级和县级以下各级委员会书记，企业事业单位的团委员会书记，是党员的，可以"}, {"a": "列席"}, {"t": "同级党的委员会和常务委员会的会议。"}], "answers": ["列席"]}, {"no": 153, "segs": [{"t": "中国共青团是中国共产党领导的"}, {"a": "先进青年的群团组织"}, {"t": "。"}], "answers": ["先进青年的群团组织"]}, {"no": 154, "segs": [{"a": "社会主义初级阶段"}, {"t": "，是在原本经济文化落后的中国建设社会主义现代化不可逾越的历史阶段。"}], "answers": ["社会主义初级阶段"]}, {"no": 155, "segs": [{"t": "习近平新时代中国特色社会主义思想是"}, {"a": "马克思主义中国化最新成果"}, {"t": "，是当代中国马克思主义、"}, {"a": "二十一世纪马克思主义"}, {"t": "。"}], "answers": ["马克思主义中国化最新成果", "二十一世纪马克思主义"]}, {"no": 156, "segs": [{"t": "在现阶段，我国社会的主要矛盾是人民日益增长的美好生活需要和"}, {"a": "不平衡不充分的发展"}, {"t": "之间的矛盾。"}], "answers": ["不平衡不充分的发展"]}, {"no": 157, "segs": [{"t": "凡是有团员"}, {"a": "三人以上"}, {"t": "的，都应当建立团的"}, {"a": "基层组织"}, {"t": "。"}], "answers": ["三人以上", "基层组织"]}];
 
+/* ==================== 2. 常量 ==================== */
 const QUIZ_BY_NO = Object.create(null);
 QUIZ.forEach(q => { QUIZ_BY_NO[q.no] = q; });
 const TOTAL_Q = QUIZ.length;
@@ -369,46 +610,141 @@ const PILLS = [
   {k:"all",t:"全部"},{k:"unanswered",t:"未答"},{k:"correct",t:"答对"},
   {k:"wrong",t:"答错"},{k:"skipped",t:"跳过"},{k:"wrongbook",t:"错题"}
 ];
+const ICON = {
+  // 收藏唯一图标源：全站四处复用同一 path，仅靠 .is-fav / .is-off 切填充
+  star:'<svg viewBox="0 0 24 24" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.05 1-5.9-4.3-4.2 5.9-.9z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".7" fill="currentColor" stroke="none"/></svg>',
+  avatar:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.2" r="4.2"/><path d="M3.6 21c0-4.5 3.8-7.2 8.4-7.2s8.4 2.7 8.4 7.2z"/></svg>',
+  trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M9 21h6M9 18h6"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L20 8l-4-4L4 16v4zM14 6l4 4"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>',
+  paper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5z"/><path d="M14 3v5h5M8 12h8M8 16h8"/></svg>',
+  bookmark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.8 2.8L16 9.5"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r=".7" fill="currentColor" stroke="none"/></svg>'
+};
 
-/* ==================== 存储区 ==================== */
+/* ==================== 3. 存储区 ==================== */
 const NS = "tq.v1.";
 const store = {
   get(k, def){ try{ const v=localStorage.getItem(NS+k); return v?JSON.parse(v):def; }catch(e){ return def; } },
   set(k, v){ try{ localStorage.setItem(NS+k, JSON.stringify(v)); }catch(e){} },
   del(k){ try{ localStorage.removeItem(NS+k); }catch(e){} }
 };
+function rawGet(k){ try{ return localStorage.getItem(NS+k); }catch(e){ return null; } }
+function rawSet(k,v){ try{ localStorage.setItem(NS+k,v); return true; }catch(e){ return false; } }
 
-/* ==================== 状态区 ==================== */
+/* ==================== 4. 状态区 ==================== */
 const state = {
   route: "home",
   session: store.get("session", null),
   history: store.get("history", []),
-  wrong: store.get("wrong", {}),
+  exams: store.get("exams", []),
+  favs: store.get("favs", {}),
   prefs: store.get("prefs", {guideSeen:false}),
   selectedMode: 10,
   result: null,
   modalOpen: false,
-  skipFocus: false
+  skipFocus: false,
+  modalTrigger: null,
+  wbExpanded: null,     // 内存态，不持久化
+  wbAutoPicked: false,
+  wbPage: 1,
+  favPage: 20
 };
+let migrationCount = 0;
+
 // 容错：清理损坏的会话
 if(state.session && (!Array.isArray(state.session.queue) || state.session.queue.some(n=>!QUIZ_BY_NO[n]))){
   state.session = null; store.del("session");
 }
 if(!Array.isArray(state.history)) state.history = [];
-if(!state.wrong || typeof state.wrong !== "object" || Array.isArray(state.wrong)) state.wrong = {};
-if(!state.prefs || typeof state.prefs !== "object") state.prefs = {guideSeen:false};
+if(!state.prefs || typeof state.prefs !== "object" || Array.isArray(state.prefs)) state.prefs = {guideSeen:false};
+
+function normalizeExam(e){
+  if(!e || typeof e!=="object" || !Array.isArray(e.queue) || !e.answers ||
+     typeof e.answers!=="object" || Array.isArray(e.answers) || !Array.isArray(e.wrongItems)) return null;
+  const out = Object.assign({}, e, {
+    queue: e.queue.filter(n=>QUIZ_BY_NO[n]),
+    wrongItems: e.wrongItems.filter(w=>w && QUIZ_BY_NO[w.no])
+  });
+  if(!out.stats || typeof out.stats!=="object" || Array.isArray(out.stats)){
+    out.stats = sessionStats({queue:out.queue, answers:out.answers});
+  }
+  if(typeof out.seq!=="number" || !isFinite(out.seq)) out.seq = 1;
+  if(typeof out.elapsedMs!=="number") out.elapsedMs = 0;
+  if(typeof out.createdAt!=="number") out.createdAt = Date.now();
+  if(typeof out.id!=="string" || !out.id) out.id = "e"+out.createdAt;
+  out.wrongItems = out.wrongItems.map(w=>Object.assign({
+    no:w.no, mastered:false, masteredAt:null,
+    lastWrongAt:out.createdAt, lastUser:[], blankWrong:0
+  }, w));
+  return out;
+}
+// 损坏 exams 条目过滤 + 回写，保证渲染不崩
+(function sanitizeExams(){
+  if(!Array.isArray(state.exams)) state.exams = [];
+  const clean = state.exams.map(normalizeExam).filter(Boolean).slice(0,20);
+  state.exams = clean;
+  if(rawGet("exams")!==null || clean.length){
+    const back = store.get("exams", null);
+    if(!Array.isArray(back) || back.length!==clean.length ||
+       back.some((x,i)=>JSON.stringify(x)!==JSON.stringify(clean[i]))) store.set("exams", clean);
+  }
+})();
+// 收藏：题号级独立集合 { [no]:{at} }；脏数据清洗后回写，与旧 wrong 迁移完全隔离
+function isPlainObject(o){ return !!o && typeof o==="object" && !Array.isArray(o); }
+(function sanitizeFavs(){
+  const raw=rawGet("favs");
+  if(!isPlainObject(state.favs)) state.favs={};
+  const clean={};
+  Object.keys(state.favs).forEach(k=>{
+    const no=+k, v=state.favs[k];
+    if(!QUIZ_BY_NO[no] || !isPlainObject(v) || typeof v.at!=="number" || !isFinite(v.at)) return;
+    if(!clean[no] || v.at>clean[no].at) clean[no]={at:v.at};
+  });
+  state.favs=clean;
+  if(raw!==null){
+    const back=store.get("favs",null);
+    const same=isPlainObject(back) &&
+      Object.keys(back).length===Object.keys(clean).length &&
+      Object.keys(clean).every(k=>back[k]&&back[k].at===clean[k].at);
+    if(!same) store.set("favs",clean);
+  }
+})();
+// 场次序号：缺失时从现有 exams 推导，保证删除后不回收
+if(typeof state.prefs.examSeq!=="number" || !isFinite(state.prefs.examSeq) || state.prefs.examSeq<0){
+  state.prefs.examSeq = state.exams.reduce((m,e)=>Math.max(m, Number(e.seq)||0), 0);
+  store.set("prefs", state.prefs);
+}
+
+/* 迁移：一次性清空旧 wrong 键（绝不触碰 exams/history/session/prefs） */
+(function migrate(){
+  let raw = null, mark = null;
+  try{ raw = localStorage.getItem(NS+"wrong"); }catch(e){}
+  try{ mark = localStorage.getItem(NS+"migrated"); }catch(e){}
+  if(raw!==null && mark!=="1"){
+    let n = 0;
+    try{ const o=JSON.parse(raw); if(o && typeof o==="object" && !Array.isArray(o)) n=Object.keys(o).length; }catch(e){}
+    store.del("wrong");
+    try{ localStorage.setItem(NS+"migrated","1"); }catch(e){}
+    migrationCount = n;
+  }
+})();
 
 const $ = id => document.getElementById(id);
 function saveSession(){ if(state.session) store.set("session", state.session); }
-function saveWrong(){ store.set("wrong", state.wrong); }
 function savePrefs(){ store.set("prefs", state.prefs); }
 function saveHistory(){ store.set("history", state.history); }
+function saveFavs(){ store.set("favs", state.favs); }
 let saveTimer = null;
 function saveSessionSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveSession, 400); }
-
 function announce(msg){ const el=$("live"); if(el){ el.textContent=""; setTimeout(()=>{el.textContent=msg;},30); } }
 
-/* ==================== 判题算法（保留原算法） ==================== */
+/* ==================== 5. 判题算法（原样保留） ==================== */
 function normalize(s){return (s||'').replace(/[\s，。、；：""''（）()《》,.!?！？\-—]/g,'').toLowerCase();}
 function judge(user, ans){
   const a=normalize(ans), u=normalize(user);
@@ -420,17 +756,69 @@ function judge(user, ans){
   return hit/Math.max(a.length,1) >= 0.8;
 }
 
-/* ==================== 工具区 ==================== */
+/* ==================== 6. 工具 / 派生计数（唯一真相源 exams） ==================== */
 function escapeHtml(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
-function fmtTime(ms){ const s=Math.max(0,Math.floor((ms||0)/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function pad2(n){ return String(n).padStart(2,"0"); }
+function fmtTime(ms){ const s=Math.max(0,Math.floor((ms||0)/1000)); return pad2(Math.floor(s/60))+":"+pad2(s%60); }
+function fmtDuration(ms){ const s=Math.max(0,Math.floor((ms||0)/1000)); return pad2(Math.floor(s/3600))+":"+pad2(Math.floor((s%3600)/60))+":"+pad2(s%60); }
+function fmtDateTime(ts){
+  const d=new Date(ts||0);
+  return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+" "+pad2(d.getHours())+":"+pad2(d.getMinutes());
+}
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; } return a; }
 function stemText(q){ return q.segs.map(s=> ("t" in s)? s.t : "＿＿").join(""); }
 function answerHtml(q){ return q.segs.map(s=> ("t" in s)? escapeHtml(s.t) : '<mark class="ans-mark">'+escapeHtml(s.a)+'</mark>').join(""); }
 function statusOf(no){ const a=state.session && state.session.answers[no]; return (a && a.status) ? a.status : "unanswered"; }
-function activeWrongNos(){ return Object.keys(state.wrong).filter(n=>state.wrong[n] && !state.wrong[n].mastered).map(n=>+n).sort((a,b)=>a-b); }
-function isActiveWrong(no){ const w=state.wrong[no]; return !!(w && !w.mastered); }
-function activeWrongCount(){ return activeWrongNos().length; }
 function isSubmitted(no){ const st=statusOf(no); return st==="correct"||st==="wrong"; }
+
+function allItems(){
+  return state.exams.reduce((acc,e)=>{
+    (e.wrongItems||[]).forEach(w=>acc.push(Object.assign({}, w, {examId:e.id, seq:e.seq})));
+    return acc;
+  },[]);
+}
+function activeItems(){ return allItems().filter(w=>!w.mastered); }
+function activeWrongNos(){ return Array.from(new Set(activeItems().map(w=>w.no))).sort((a,b)=>a-b); }
+function activeWrongCount(){ return activeItems().length; }
+function masteredCount(){ return allItems().filter(w=>w.mastered).length; }
+function examActiveCount(e){ return (e.wrongItems||[]).filter(w=>!w.mastered).length; }
+function wrongTimes(no){ return allItems().filter(w=>w.no===no).length; }
+function isActiveWrong(no){ return activeItems().some(w=>w.no===no); }
+/* 收藏派生（唯一数据源 state.favs，题号级 { no:{at} }） */
+function isFav(no){ return Object.prototype.hasOwnProperty.call(state.favs,no); }
+function favCount(){ return Object.keys(state.favs).length; }
+function favNos(){ return Object.keys(state.favs).map(Number); }
+function favWrongTimes(no){ return wrongTimes(no); }
+function favItems(){
+  return favNos().map(no=>{
+    const related=allItems().filter(w=>w.no===no);
+    const src=related.slice().sort((a,b)=>(b.lastWrongAt||0)-(a.lastWrongAt||0))[0]||null;
+    const everArchived=state.exams.some(e=>(e.queue||[]).indexOf(no)>=0) ||
+      state.history.some(h=>(h.queue||[]).indexOf(no)>=0);
+    const srcKind=src?"exam":(everArchived?"orphan":"practicing");
+    return {no,at:(state.favs[no]||{}).at||0,src,srcKind,
+      wrongTimes:wrongTimes(no),active:isActiveWrong(no),
+      mastered:related.length>0&&!isActiveWrong(no)};
+  }).sort((a,b)=>(b.at-a.at)||(a.no-b.no));
+}
+// 全站唯一星标按钮构造器：四场景复用同一 ICON.star 与状态类，杜绝样式漂移
+function favToggleAttrs(no, cls){
+  const on=isFav(no);
+  return 'class="'+cls+(on?' is-fav':' is-off')+'" type="button" data-act="fav-toggle" data-no="'+no+'"'+
+    ' aria-pressed="'+(on?'true':'false')+'" aria-label="'+(on?'取消收藏第':'收藏第')+no+'题"'+
+    ' title="'+(on?'取消收藏第':'收藏第')+no+'题"';
+}
+function favTextBtn(no){
+  return '<button '+favToggleAttrs(no,'fav-text-btn')+'>'+ICON.star+
+    '<span class="fav-label fav-text-btn-label">'+(isFav(no)?'已收藏':'收藏这道题')+'</span></button>';
+}
+function favIconBtn(no){
+  return '<button '+favToggleAttrs(no,'fav-icon-btn')+'>'+ICON.star+'</button>';
+}
+function bestRate(){
+  const rs=state.exams.map(e=>e.stats&&e.stats.rate).filter(r=>typeof r==="number" && isFinite(r));
+  return rs.length ? Math.max.apply(null,rs) : null;
+}
 
 function sessionStats(s){
   let correct=0,wrong=0,skipped=0;
@@ -453,35 +841,99 @@ function cumulativeStats(){
 }
 function modeLabel(mode){ return mode==="redo" ? "错题重做" : ((mode+" 题")||"练习"); }
 
-/* ==================== 会话管理 ==================== */
-function archiveActive(){
-  const s=state.session; if(!s) return;
+/* ==================== 7. 持久化校验 / 会话管理 ==================== */
+function sameIds(a,b){
+  if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length) return false;
+  const f=x=>x&&x.id?x.id:"";
+  return a.map(f).sort().join("|")===b.map(f).sort().join("|");
+}
+// 写存储 → 回读校验 → 再改内存；失败返回 false 且不改内存
+function persistExams(next){
+  store.set("exams",next);
+  let back=null; try{ back=JSON.parse(rawGet("exams")||"null"); }catch(e){}
+  if(!sameIds(back,next) || (next.length && (!back[0] || back[0].id!==next[0].id))) return false;
+  if(back.some((e,i)=>!Array.isArray(e.wrongItems) || e.wrongItems.length!==next[i].wrongItems.length)) return false;
+  state.exams=next; return true;
+}
+function buildExam(s){
   const st=sessionStats(s);
-  state.history.unshift({id:s.id,mode:s.mode,queue:s.queue.slice(),answers:JSON.parse(JSON.stringify(s.answers)),
-    elapsedMs:s.elapsedMs||0,endedAt:Date.now(),stats:st});
-  if(state.history.length>20) state.history.length=20;
-  saveHistory();
+  const createdAt=Date.now();
+  const answers=JSON.parse(JSON.stringify(s.answers||{}));
+  const queue=(s.queue||[]).slice();
+  const seq=(Number(state.prefs.examSeq)||0)+1;
+  const wrongItems=queue.filter(no=>answers[no] && answers[no].status==="wrong").map(no=>{
+    const a=answers[no], details=Array.isArray(a.details)?a.details:[];
+    return {
+      no, mastered:false, masteredAt:null,
+      lastWrongAt:a.at||createdAt,
+      lastUser:details.map(d=>d.user||""),
+      blankWrong:details.filter(d=>!d.ok).length
+    };
+  });
+  return {
+    id:"e"+Date.now()+pad2(Math.floor(Math.random()*100)),
+    seq, createdAt, startedAt:s.startedAt||createdAt, mode:String(s.mode),
+    queue, answers, stats:st, elapsedMs:s.elapsedMs||0, wrongItems
+  };
+}
+// 交卷原子归档：exams / history / prefs 一次性写，校验成功后才清 session
+function archiveActive(){
+  const s=state.session; if(!s) return false;
+  const st=sessionStats(s);
+  const exam=buildExam(s);
+  const entry={id:s.id,mode:s.mode,queue:s.queue.slice(),
+    answers:JSON.parse(JSON.stringify(s.answers)),elapsedMs:s.elapsedMs||0,
+    endedAt:exam.createdAt,stats:st};
+  const oldExams=state.exams.slice(), oldHistory=state.history.slice(), oldPrefs=Object.assign({},state.prefs);
+  const newExams=[exam].concat(state.exams).slice(0,20);
+  const newHistory=[entry].concat(state.history).slice(0,20);
+  const newPrefs=Object.assign({},state.prefs,{examSeq:exam.seq});
+  store.set("exams",newExams); store.set("history",newHistory); store.set("prefs",newPrefs);
+  let be=null,bh=null,bp=null;
+  try{ be=JSON.parse(rawGet("exams")||"null"); }catch(e){}
+  try{ bh=JSON.parse(rawGet("history")||"null"); }catch(e){}
+  try{ bp=JSON.parse(rawGet("prefs")||"null"); }catch(e){}
+  const ok = !!(be && be.length===newExams.length && be[0] && be[0].id===exam.id &&
+                bh && bh.length===newHistory.length && bh[0] && bh[0].id===entry.id &&
+                bp && bp.examSeq===exam.seq);
+  if(!ok){
+    store.set("exams",oldExams); store.set("history",oldHistory); store.set("prefs",oldPrefs);
+    return false;
+  }
+  state.exams=newExams; state.history=newHistory; state.prefs=newPrefs;
   state.session=null; store.del("session");
+  return true;
 }
 function newSession(mode, nos){
-  if(state.session) archiveActive();
+  if(state.session && !archiveActive()) { announce("保存失败，请重试"); return false; }
   let queue;
   if(Array.isArray(nos) && nos.length) queue=nos.slice();
   else queue=shuffle(QUIZ.map(q=>q.no)).slice(0, Math.min(mode, TOTAL_Q));
   state.session={id:"s"+Date.now(),mode:String(mode),queue,answers:{},drafts:{},elapsedMs:0,
     startedAt:Date.now(),filter:{status:"all",query:""},expanded:null,createdAt:Date.now()};
   saveSession();
+  return true;
 }
-function startMode(n){ newSession(n); state.route="practice"; location.hash="#/practice"; render(); }
+function startMode(n){
+  if(!newSession(n)) return;
+  state.route="practice"; location.hash="#/practice"; render();
+}
 function startRedo(){
   const nos=activeWrongNos();
   if(!nos.length){ announce("错题本为空"); return; }
-  newSession("redo", nos);
+  if(!newSession("redo", nos)) return;
   state.route="practice"; location.hash="#/practice"; render();
   announce("已开始错题重做，共 "+nos.length+" 题");
 }
+function startRedoNos(nos){
+  const fresh=nos.filter(isActiveWrong);
+  if(!fresh.length){ announce("这些错题已订正"); return; }
+  if(!newSession("redo", fresh)) return;
+  go("#/practice");
+  announce("已开始重做 "+fresh.length+" 道错题");
+}
 
-/* ==================== 计时器（后台暂停） ==================== */
+/* ==================== 8. 计时器 ==================== */
 let lastTick=Date.now(), tickHandle=null, lastPersist=Date.now();
 function startTicker(){
   if(tickHandle) return;
@@ -501,10 +953,10 @@ function startTicker(){
 }
 document.addEventListener("visibilitychange",()=>{ lastTick=Date.now(); saveSession(); });
 
-/* ==================== 路由 ==================== */
+/* ==================== 9. 路由 ==================== */
 function routeFromHash(){
   const h=(location.hash||"").replace(/^#\/?/,"");
-  state.route = ["home","practice","result","wrongbook"].indexOf(h)>=0 ? h : "home";
+  state.route = ["home","practice","result","wrongbook","favorites"].indexOf(h)>=0 ? h : "home";
 }
 function go(hash){
   state.route=hash.replace("#/","");
@@ -513,7 +965,23 @@ function go(hash){
 }
 window.addEventListener("hashchange",()=>{ routeFromHash(); render(); window.scrollTo(0,0); });
 
-/* ==================== 渲染：骨架 ==================== */
+/* ==================== 10. 渲染：骨架 / 顶栏 ==================== */
+function artBlank(){
+  return '<svg class="empty-art" viewBox="0 0 120 96" fill="none" stroke="var(--line-strong)" stroke-width="2" stroke-linejoin="round" aria-hidden="true">'+
+    '<path d="M22 8h52l18 18v62H22z"/><path d="M74 8v18h18"/>'+
+    '<path d="M32 40h44M32 52h44M32 64h30" stroke-dasharray="4 5"/>'+
+    '<path d="M88 78l10 10" stroke="var(--gold-l)" stroke-width="3"/></svg>';
+}
+function artCheck(){
+  return '<svg class="empty-art" viewBox="0 0 120 96" fill="none" stroke="var(--line-strong)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+    '<circle cx="60" cy="46" r="32"/><path d="m44 47 11 11 23-25" stroke="var(--gold-l)" stroke-width="4"/></svg>';
+}
+function artFav(){
+  return '<svg class="empty-art" viewBox="0 0 120 96" fill="none" stroke="var(--line-strong)" stroke-width="2" stroke-linejoin="round" aria-hidden="true">'+
+    '<path d="M26 10h50l16 16v60H26z"/><path d="M76 10v16h16"/>'+
+    '<path d="M36 42h40M36 54h40M36 66h26" stroke-dasharray="4 5"/>'+
+    '<path class="fav-empty-star" d="M60 30l2.6 5.3 5.9.9-4.3 4.2 1 5.9L60 44.2l-5.2 2.1 1-5.9-4.3-4.2 5.9-.9z"/></svg>';
+}
 function render(){
   const r=state.route;
   let html=renderHeader();
@@ -523,13 +991,10 @@ function render(){
   else if(r==="practice") html+=renderPractice();
   else if(r==="result") html+=renderResult();
   else if(r==="wrongbook") html+=renderWrongbook();
+  else if(r==="favorites") html+=renderFavorites();
   html+='</main><div class="footer">题库自测工具 · 仅供学习复习使用</div>';
   $("app").innerHTML=html;
-  if(r==="practice"){
-    updateStatsBarText(); renderGrid(); renderSidebar();
-  }else if(r==="wrongbook"){
-    renderGrid();
-  }
+  if(r==="practice"){ updateStatsBarText(); renderGrid(); renderSidebar(); }
 }
 function renderHeader(){
   return '<header class="topbar"><div class="topbar-inner">'+
@@ -537,8 +1002,12 @@ function renderHeader(){
     '<div class="brand"><div class="brand-title">团课知识 · 随手测</div><div class="brand-sub">入团积极分子 · 题库自测</div></div>'+
     '<nav class="topnav">'+
       '<button class="nav-btn" data-act="go-wrongbook">错题本 <span class="nav-count">'+activeWrongCount()+'</span></button>'+
+      '<button class="nav-btn nav-fav'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
+        ' aria-label="收藏错题，当前'+favCount()+'题已收藏">'+ICON.star+'<span class="fav-label">收藏</span>'+
+        (favCount()>0?'<span class="nav-fav-count">'+favCount()+'</span>':'')+'</button>'+
       (state.session?'<button class="nav-btn" data-act="continue">继续</button>':'')+
-      '<button class="nav-btn nav-help" data-act="help" aria-label="帮助面板">?</button>'+
+      '<button class="avatar-btn" type="button" data-act="profile" aria-label="个人学习档案" title="个人学习档案">'+ICON.avatar+'</button>'+
+      '<button class="nav-btn nav-help" data-act="profile" aria-label="个人数据面板" title="个人数据面板">?</button>'+
     '</nav></div></header>';
 }
 function renderStatsBar(){
@@ -551,7 +1020,8 @@ function renderStatsBar(){
 }
 function renderGuide(){
   if(state.prefs.guideSeen) return "";
-  return '<div class="guide-wrap"><div class="guide"><span aria-hidden="true">💡</span><span>这是一份列表式自测：点开任意题卡作答，提交即判；可随时跳过，交卷前都能修改。</span>'+
+  return '<div class="guide-wrap"><div class="guide">'+ICON.info+
+    '<span>这是一份列表式自测：点开任意题卡作答，提交即判；可随时跳过，交卷前都能修改。</span>'+
     '<button class="guide-x" data-act="close-guide" aria-label="关闭新手提示">×</button></div></div>';
 }
 function updateStatsBarText(){
@@ -565,9 +1035,14 @@ function updateStatsBarText(){
   if(f) f.style.width=(st.coverage)+"%";
   const mb=$("mbDone"); if(mb) mb.textContent=st.processed+"/"+st.total;
 }
-function updateHeaderCounts(){ const el=document.querySelector(".nav-count"); if(el) el.textContent=activeWrongCount(); }
+function updateHeaderCounts(){
+  const el=document.querySelector(".nav-count"); if(el) el.textContent=activeWrongCount();
+  const wb=document.querySelector("[data-act='go-wrongbook']");
+  if(wb) wb.setAttribute("aria-label","打开错题本，当前"+activeWrongCount()+"题待订正");
+  updateFavCounts();
+}
 
-/* ==================== 渲染：首页 ==================== */
+/* ==================== 11. 渲染：首页 ==================== */
 function renderHome(){
   const c=cumulativeStats(), wn=activeWrongCount(), s=state.session;
   return '<div class="home">'+
@@ -581,10 +1056,13 @@ function renderHome(){
     '<div class="entry-grid">'+
       '<section class="card entry-card" data-act="go-wrongbook" role="button" tabindex="0" aria-label="打开错题本，当前'+wn+'题待订正">'+
         '<div class="ec-top"><div class="ec-icon" style="background:var(--s-due-bg);color:var(--s-due-fg)" aria-hidden="true">◆</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
-        '<h3>错题本 <span style="color:var(--s-due-fg)">'+wn+'</span></h3><p>集中复习答错题目，订正后可一键移出。</p></section>'+
+        '<h3>错题本 <span style="color:var(--s-due-fg)">'+wn+'</span></h3><p>按场次归档答错题目，订正或删除后计数自动更新。</p>'+
+        '<button class="fav-sublink'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
+          ' aria-label="我的收藏，当前'+favCount()+'题">'+ICON.star+
+          '<span class="fav-sublink-text">我的收藏 '+(favCount()>0?favCount()+' 题':'· 还没有收藏的题')+'</span><span aria-hidden="true">→</span></button></section>'+
       (s? '<section class="card entry-card primary" data-act="continue" role="button" tabindex="0" aria-label="继续上次练习">'+
         '<div class="ec-top"><div class="ec-icon" style="background:#fdeeed;color:var(--red)" aria-hidden="true">▶</div><span class="ec-arrow" aria-hidden="true">→</span></div>'+
-        '<h3>继续练习</h3><p>'+modeLabel(s.mode)+' · 已处理 '+sessionStats(s).processed+'/'+s.queue.length+' 题，现场已为你保留。</p></section>' : '')+
+        '<h3>继续练习</h3><p>'+modeLabel(s.mode)+' · 已处理 '+sessionStats(s).processed+'/'+s.queue.length+' 题，现场已为你保留。</p></section>':'')+
     '</div>'+
     '<section class="card"><div class="sec-title">选择测试题量</div>'+
       '<div class="segmented" role="group" aria-label="题量模式">'+
@@ -596,9 +1074,9 @@ function renderHome(){
     '</section></div>';
 }
 
-/* ==================== 渲染：练习页 ==================== */
+/* ==================== 12. 渲染：练习页 ==================== */
 function renderPractice(){
-  if(!state.session) return '<div class="card empty-state"><div class="empty-icon" aria-hidden="true">📝</div>'+
+  if(!state.session) return '<div class="card empty-state">'+artBlank()+
     '<h3>没有进行中的练习</h3><p>返回首页选一个题量，开始新的自测。</p>'+
     '<button class="btn btn-primary" data-act="go-home">返回首页</button></div>';
   const s=state.session;
@@ -618,7 +1096,6 @@ function renderPractice(){
       '<button class="btn btn-primary" data-act="finish">交卷</button></div>'+
   '</div>';
 }
-
 function matchQuery(no, query){
   const tokens=(query||"").trim().split(/\s+/).filter(Boolean);
   if(!tokens.length) return true;
@@ -626,29 +1103,22 @@ function matchQuery(no, query){
   const text=q.segs.map(s=> ("t" in s)? s.t : s.a).join("");
   return tokens.every(tk=> /^\d+$/.test(tk) ? no===parseInt(tk,10) : text.indexOf(tk)>=0);
 }
-function gridSourceNos(){
-  if(state.route==="wrongbook") return activeWrongNos();
-  return state.session ? state.session.queue : [];
-}
 function renderGrid(){
   const grid=$("grid"); if(!grid) return;
   const empty=$("gridEmpty");
-  const nos=gridSourceNos();
-  let searched=nos.filter(no=> matchQuery(no, state.route==="practice" ? state.session.filter.query : ""));
-  // 胶囊计数：受搜索影响，不受自身状态筛选影响
-  if(state.route==="practice"){
-    const counts={all:searched.length,unanswered:0,correct:0,wrong:0,skipped:0,wrongbook:0};
-    searched.forEach(no=>{ const st=statusOf(no); if(counts[st]!=null) counts[st]++; if(isActiveWrong(no)) counts.wrongbook++; });
-    document.querySelectorAll("[data-pill]").forEach(el=>{ el.textContent=counts[el.dataset.pill]||0; });
-    const f=state.session.filter.status;
-    if(f!=="all") searched=searched.filter(no=> f==="wrongbook" ? isActiveWrong(no) : statusOf(no)===f);
-  }
+  const s=state.session; if(!s) return;
+  let searched=s.queue.filter(no=>matchQuery(no,s.filter.query));
+  const counts={all:searched.length,unanswered:0,correct:0,wrong:0,skipped:0,wrongbook:0};
+  searched.forEach(no=>{ const st=statusOf(no); if(counts[st]!=null) counts[st]++; if(isActiveWrong(no)) counts.wrongbook++; });
+  document.querySelectorAll("[data-pill]").forEach(el=>{ el.textContent=counts[el.dataset.pill]||0; });
+  const f=s.filter.status;
+  if(f!=="all") searched=searched.filter(no=> f==="wrongbook" ? isActiveWrong(no) : statusOf(no)===f);
   if(!searched.length){
     grid.innerHTML="";
     if(empty){
       empty.classList.remove("hidden");
-      const isSearch = state.route==="practice" && state.session.filter.query.trim();
-      empty.innerHTML='<div class="card empty-state"><div class="empty-icon" aria-hidden="true">'+(isSearch?"⌕":"✓")+'</div>'+
+      const isSearch=!!s.filter.query.trim();
+      empty.innerHTML='<div class="card empty-state">'+(isSearch?ICON.search:artCheck())+
         '<h3>'+(isSearch?"没有匹配的题目":"当前筛选下暂无题目")+'</h3>'+
         '<p>'+(isSearch?"换个题号或关键词试试":"切换到「全部」查看更多题目")+'</p>'+
         (isSearch?'<button class="btn btn-soft" data-act="clear-search">清空搜索</button>':'')+'</div>';
@@ -661,27 +1131,24 @@ function renderGrid(){
   if(first && !state.skipFocus){ first.focus(); }
   state.skipFocus=false;
 }
-
 function renderCard(no){
   const q=QUIZ_BY_NO[no], s=state.session;
-  const isWB=state.route==="wrongbook";
-  const status=isWB ? "due" : statusOf(no);
+  const status=statusOf(no);
   const st=STATUS[status] || STATUS.unanswered;
-  const ans=!isWB && s ? s.answers[no] : null;
-  const open=isWB ? (reviewOpen===no) : !!(s && s.expanded===no);
+  const ans=s ? s.answers[no] : null;
+  const open=!!(s && s.expanded===no);
   const blanks=q.answers.length;
   return '<article class="qcard style-'+status+(open?' is-open':'')+'" data-no="'+no+'">'+
-    '<div class="qcard-summary" role="button" tabindex="0" data-act="'+(isWB?'toggle-review':'toggle-card')+'" data-no="'+no+'"'+
+    '<div class="qcard-summary" role="button" tabindex="0" data-act="toggle-card" data-no="'+no+'"'+
       ' aria-expanded="'+!!open+'" aria-label="第'+no+'题，状态'+st.label+'，'+blanks+'个空，'+(open?'收起':'展开')+'">'+
       '<div class="card-head"><span class="qno-badge">'+no+'</span>'+
         '<span class="status-chip"><span class="st-icon" aria-hidden="true">'+st.icon+'</span><span>'+st.label+'</span></span></div>'+
       '<div class="stem">'+escapeHtml(stemText(q))+'</div>'+
       '<div class="card-meta"><span class="blank-tag">'+blanks+' 空</span>'+
         (ans&&ans.timeMs?'<span>用时 '+fmtTime(ans.timeMs)+'</span>':'')+'</div></div>'+
-    (open? '<div class="qcard-body">'+(isWB?renderWrongReviewBody(no):renderCardBody(no,q,ans))+'</div>':'')+
+    (open? '<div class="qcard-body">'+renderCardBody(no,q,ans)+'</div>':'')+
   '</article>';
 }
-
 function renderCardBody(no,q,ans){
   const submitted=ans && (ans.status==="correct"||ans.status==="wrong");
   let html="";
@@ -710,6 +1177,7 @@ function renderCardBody(no,q,ans){
     html+='<div class="q-actions">'+
       '<button class="btn btn-primary" data-act="next-card">下一题</button>'+
       '<button class="btn btn-soft" data-act="redo-card" data-no="'+no+'">重做本题</button>'+
+      (!ok?favTextBtn(no):'')+
       '<button class="btn btn-ghost" data-act="collapse">收起</button>'+
       '<button class="link-btn" data-act="dispute" data-no="'+no+'">判题存疑？</button></div>';
   }else{
@@ -721,18 +1189,6 @@ function renderCardBody(no,q,ans){
   }
   return html;
 }
-
-function renderWrongReviewBody(no){
-  const q=QUIZ_BY_NO[no], w=state.wrong[no]||{};
-  return (q.no>=132?'<div class="tip-note">说明：此题填空考点由本测试工具自行标注，仅供参考</div>':'')+
-    '<div class="full-stem">'+answerHtml(q)+'</div>'+
-    '<div class="review-meta">累计答错 '+((w.wrongCount||0))+' 次'+
-      (w.lastUser&&w.lastUser.length?' · 最近你的答案：'+w.lastUser.map(x=>x||"（空）").join("、"):'')+'</div>'+
-    '<div class="q-actions"><button class="btn btn-primary" data-act="start-redo-one" data-no="'+no+'">只重做这一题</button>'+
-      '<button class="btn btn-soft" data-act="start-redo">重做全部错题</button>'+
-      '<button class="btn btn-ghost" data-act="toggle-review" data-no="'+no+'">收起</button></div>';
-}
-
 function renderSidebar(){
   const el=$("sidebarBody"); if(!el||!state.session) return;
   const s=state.session, st=sessionStats(s);
@@ -761,24 +1217,17 @@ function renderSidebar(){
     '<section class="card side-card"><h3>⌘ 快捷入口</h3><div class="side-actions">'+
       '<button class="btn btn-primary" data-act="next-unanswered">下一未答 (N)</button>'+
       '<button class="btn btn-soft" data-act="go-wrongbook">错题本 '+activeWrongCount()+'</button>'+
-      '<button class="btn btn-soft" data-act="help">帮助与快捷键 (?)</button>'+
+      '<button class="btn btn-soft" data-act="profile">个人数据 (?)</button>'+
       '<button class="btn btn-ghost" data-act="finish">交卷</button>'+
     '</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">'+legend+'</div></section>';
 }
 
-/* ==================== 视图行为 ==================== */
+/* ==================== 13. 视图行为 ==================== */
 function toggleCard(no){
   const s=state.session; if(!s) return;
   s.expanded = s.expanded===no ? null : no;
-  saveSessionSoon();
-  renderGrid();
+  saveSessionSoon(); renderGrid();
 }
-function toggleReview(no){
-  reviewOpen = reviewOpen===no ? null : no;
-  renderGrid();
-}
-let reviewOpen=null;
-
 function submitCard(no){
   const s=state.session, q=QUIZ_BY_NO[no]; if(!s||!q) return;
   const details=[]; let allRight=true;
@@ -794,8 +1243,7 @@ function submitCard(no){
   const prev=s.answers[no]||{};
   s.answers[no]={status:allRight?"correct":"wrong",values:details.map(d=>d.user),details,
     timeMs:prev.timeMs||0,at:Date.now()};
-  if(allRight){ if(s.mode==="redo") masterWrong(no,true); }
-  else markWrong(no,details);
+  if(allRight && s.mode==="redo") masterWrong(no);
   saveSession();
   updateHeaderCounts(); updateStatsBarText(); renderGrid(); renderSidebar();
   announce("第"+no+"题"+(allRight?"回答正确":"回答错误"));
@@ -820,8 +1268,7 @@ function nextCard(){
   const q=s.queue, cur=q.indexOf(s.expanded);
   for(let k=1;k<=q.length;k++){
     const no=q[(cur+k+q.length)%q.length];
-    const st=statusOf(no);
-    if(st==="unanswered"){ s.expanded=no; saveSessionSoon(); renderGrid(); announce("已定位到第"+no+"题"); return; }
+    if(statusOf(no)==="unanswered"){ s.expanded=no; saveSessionSoon(); renderGrid(); announce("已定位到第"+no+"题"); return; }
   }
   announce("本轮已无未答题目");
 }
@@ -832,41 +1279,51 @@ function moveCard(dir){
   s.expanded=q[next]; saveSessionSoon(); renderGrid();
   announce("第"+q[next]+"题");
 }
-
-function markWrong(no,details){
-  const w=state.wrong[no]||{no:no,wrongCount:0,mastered:false};
-  w.wrongCount=(w.wrongCount||0)+1; w.mastered=false; w.lastWrongAt=Date.now();
-  w.lastUser=details.map(d=>d.user||"");
-  state.wrong[no]=w; saveWrong();
-}
-function masterWrong(no, silent){
-  const w=state.wrong[no]; if(!w) return;
-  w.mastered=true; w.masteredAt=Date.now(); saveWrong();
+// 答对：把所有 exams 中同题号的未订正子项一次性订正；撤销按 uid 全量回滚
+function masterWrong(no){
+  const before=state.exams;
+  const uids=[];
+  before.forEach(e=>e.wrongItems.forEach(w=>{ if(w.no===no && !w.mastered) uids.push(e.id+":"+no); }));
+  if(!uids.length) return;
+  const stamp=Date.now();
+  const next=before.map(e=>Object.assign({},e,{wrongItems:e.wrongItems.map(w=>
+    (w.no===no && !w.mastered) ? Object.assign({},w,{mastered:true,masteredAt:stamp}) : w)}));
+  if(!persistExams(next)){ announce("保存失败，订正未生效"); return; }
   updateHeaderCounts();
-  showToast("第"+no+"题已订正，移出错题本",{
-    undo:()=>{ w.mastered=false; delete w.masteredAt; saveWrong(); updateHeaderCounts();
-      if(state.route==="wrongbook") renderGrid(); announce("已撤销订正"); },
-    duration:5000
-  });
-  announce("第"+no+"题已订正");
+  showToast("第"+no+"题已订正，当前待订正 "+activeWrongCount()+" 题",{undo:()=>{
+    if(!persistExams(before)){ announce("撤销失败，请重试"); return; }
+    updateHeaderCounts(); if(state.route==="wrongbook"){ render(); focusExamList(); }
+    announce("已撤销订正，当前待订正 "+activeWrongCount()+" 题");
+  },duration:5000});
+  announce("第"+no+"题已订正，当前待订正 "+activeWrongCount()+" 题");
 }
 
-/* ==================== 交卷 / 结果 ==================== */
+/* ==================== 14. 交卷 / 结果 ==================== */
+function showArchiveError(){
+  const modal=document.querySelector("#modalRoot .modal"); if(!modal) return;
+  let n=modal.querySelector(".archive-error");
+  if(!n){
+    n=document.createElement("p"); n.className="archive-error";
+    const acts=modal.querySelector(".modal-actions");
+    if(acts) modal.insertBefore(n,acts); else modal.appendChild(n);
+  }
+  n.textContent="保存失败，请重试（本轮进度已保留）。";
+}
 function openFinishConfirm(){
   const s=state.session; if(!s) return;
   const st=sessionStats(s);
   if(st.processed===0){
     openModal('<h2>无法交卷</h2><p>本轮尚未处理任何题目（未作答、未跳过）。请先完成至少一题后再交卷。</p>'+
-      '<div class="modal-actions"><button class="btn btn-primary" data-act="close-modal">知道了</button></div>');
+      '<div class="modal-actions"><button class="btn btn-primary" data-act="close-modal" data-autofocus>知道了</button></div>');
     return;
   }
   const rest=st.total-st.processed;
-  const title="确认交卷？";
   const body= rest>0
     ? '还有 <b>'+rest+'</b> 题未处理（将按未作答计）。<br>已处理 <b>'+st.processed+'</b> 题，其中答对 '+st.correct+' 题。<br>交卷后将归档本轮并查看结果。'
     : '本轮 <b>'+st.total+'</b> 题已全部处理完毕。<br>答对 '+st.correct+' 题，答错 '+st.wrong+' 题，跳过 '+st.skipped+' 题。<br>确认后归档并查看结果。';
-  openModal('<h2>'+title+'</h2><p>'+body+'</p>'+
-    '<div class="modal-actions"><button class="btn btn-soft" data-act="close-modal">继续答题</button>'+
+  openModal('<h2>确认交卷？</h2><p>'+body+'</p>'+
+    '<p class="archive-note">交卷后本场错题将按场次归档到错题本。</p>'+
+    '<div class="modal-actions"><button class="btn btn-soft" data-act="close-modal" data-autofocus>继续答题</button>'+
     '<button class="btn btn-primary" data-act="do-finish">确认交卷</button></div>');
 }
 function doFinish(){
@@ -876,23 +1333,25 @@ function doFinish(){
   if(s.mode==="redo"){
     s.queue.forEach(no=>{ const a=s.answers[no]; if(a&&a.status==="correct") corrected++; else still++; });
   }
+  if(!archiveActive()){
+    showArchiveError();
+    announce("保存失败，请重试，本轮进度已保留");
+    return;
+  }
   state.result={mode:s.mode,queue:s.queue.slice(),answers:JSON.parse(JSON.stringify(s.answers)),
     elapsedMs:s.elapsedMs||0,stats:st,corrected,still,endedAt:Date.now()};
-  archiveActive();
   closeModal();
   go("#/result");
-  announce("已交卷，正在生成结果");
+  announce("已交卷，本场错题已归档");
 }
 function renderResult(){
   const r=state.result;
-  if(!r) return '<div class="card empty-state"><div class="empty-icon" aria-hidden="true">📊</div>'+
+  if(!r) return '<div class="card empty-state">'+artBlank()+
     '<h3>暂无可展示的结果</h3><p>完成一轮练习并交卷后，这里会显示详细统计。</p>'+
     '<button class="btn btn-primary" data-act="go-home">返回首页</button></div>';
   const st=r.stats;
   const score=st.submitted? st.rate : 0;
-  const wrongList=r.queue.filter(no=>{
-    const a=r.answers[no]; return a && a.status==="wrong";
-  });
+  const wrongList=r.queue.filter(no=>{ const a=r.answers[no]; return a && a.status==="wrong"; });
   let review="";
   if(r.mode==="redo"){
     review='<div class="card" style="margin-top:16px"><div class="sec-title">订正结果</div>'+
@@ -901,10 +1360,10 @@ function renderResult(){
       '<div class="hstat"><div class="v">'+r.queue.length+'</div><div class="k">重做总数</div></div></div></div>';
   }
   if(!st.processed){
-    review+='<div class="card empty-state" style="margin-top:16px"><div class="empty-icon" aria-hidden="true">○</div>'+
+    review+='<div class="card empty-state" style="margin-top:16px">'+artBlank()+
       '<h3>本轮未作答</h3><p>可以再练一次，从头开始。</p></div>';
   }else if(!wrongList.length){
-    review+='<div class="card empty-state" style="margin-top:16px"><div class="empty-icon" aria-hidden="true">✓</div>'+
+    review+='<div class="card empty-state" style="margin-top:16px">'+artCheck()+
       '<h3>全部答对，太棒了！</h3><p>本轮没有需要回顾的错题。</p></div>';
   }else{
     review+='<section class="card wrong-review" style="margin-top:16px"><div class="sec-title">错题回顾（'+wrongList.length+' 题）</div>'+
@@ -913,7 +1372,8 @@ function renderResult(){
         const your=a.values.map((v,i)=> a.details[i]&&a.details[i].ok
           ? '<span class="ok-tag">'+escapeHtml(v||"（空）")+' ✓</span>'
           : '<span class="your-tag">'+escapeHtml(v||"（空）")+'</span>').join("、");
-        return '<div class="rev-item"><div class="rev-head"><span class="rev-no">第 '+no+' 题</span>'+
+        return '<div class="rev-item" data-no="'+no+'"><div class="rev-head"><span class="rev-no">第 '+no+' 题</span>'+
+          favIconBtn(no)+
           '<span>你的答案：'+your+'</span><span class="rev-time">本题用时 '+fmtTime(a.timeMs)+'</span></div>'+
           '<div>'+answerHtml(q)+'</div></div>';
       }).join("")+'</section>';
@@ -939,51 +1399,328 @@ function renderResult(){
     '</div></section></div>';
 }
 
-/* ==================== 视图：错题本 ==================== */
+/* ==================== 15. 错题本（按考试分组） ==================== */
+function renderWrongItem(e,w){
+  const q=QUIZ_BY_NO[w.no];
+  const done=!!w.mastered;
+  const stem=q?escapeHtml(stemText(q)):"题目数据缺失";
+  const extra=w.lastWrongAt?" · 最近答错 "+fmtDateTime(w.lastWrongAt):"";
+  const users=(w.lastUser||[]).filter(Boolean);
+  const last=users.length?" · 你的答案："+escapeHtml(users[users.length-1]):"";
+  return '<div class="wb-item'+(done?' is-mastered':'')+'" data-uid="'+e.id+':'+(q?q.no:w.no)+'">'+
+    '<div class="wb-item-top">'+
+      '<span class="qno-badge">'+(q?w.no:"?")+'</span>'+
+      (done?'<span class="done-chip"><span aria-hidden="true">✓</span> 已订正</span>'
+           :'<span class="due-chip"><span aria-hidden="true">◆</span> 待订正</span>')+
+      favIconBtn(w.no)+
+      '<button class="del-item" type="button" data-act="del-wrong-item" data-id="'+e.id+'" data-no="'+w.no+'"'+
+        ' aria-label="删除第'+e.seq+'场第'+w.no+'题错题" title="从错题本移除这道题">'+ICON.trash+'</button>'+
+    '</div>'+
+    '<div class="wb-item-stem">'+stem+'</div>'+
+    '<div class="wb-item-meta">累计答错 '+wrongTimes(w.no)+' 次 · 本题答错空数 '+(w.blankWrong||0)+extra+last+'</div>'+
+    '<div class="wb-item-actions"><button class="link-btn" type="button" data-act="start-redo-one" data-no="'+w.no+'">只重做这一题</button></div>'+
+  '</div>';
+}
+function renderExamCard(e){
+  const open=state.wbExpanded===e.id;
+  const act=examActiveCount(e);
+  const st=e.stats||{};
+  const rate=(typeof st.rate==="number")?st.rate+"%":"—";
+  const rateW=(typeof st.rate==="number")?st.rate:0;
+  const sub=open? '<div class="exam-wrongs" id="wb-'+e.id+'">'+
+      (e.wrongItems.length
+        ? (act===0?'<div class="all-done-note">本场错题已全部处理 ✓</div>':'')+
+          e.wrongItems.map(w=>renderWrongItem(e,w)).join("")
+        : '<div class="mini-empty">'+artCheck()+'本场全部答对<br>没有需要订正的错题</div>')+
+    '</div>' : '';
+  return '<section class="exam-card'+(open?' is-expanded':'')+'" data-exam="'+e.id+'">'+
+    '<div class="exam-head">'+
+      '<button class="exam-toggle-hit" type="button" data-act="toggle-exam" data-id="'+e.id+'"'+
+        ' aria-expanded="'+!!open+'" aria-controls="wb-'+e.id+'"'+
+        ' aria-label="第'+e.seq+'场，'+fmtDateTime(e.createdAt)+'，待订正'+act+'题，正确率'+rate+'，'+(open?'收起':'展开')+'错题"></button>'+
+      '<div class="exam-head-info left" aria-hidden="true">'+
+        '<span class="exam-badge">第'+e.seq+'场</span>'+
+        '<span class="exam-time">'+fmtDateTime(e.createdAt)+'</span>'+
+        (act>0?'<span class="due-badge">◆ 待订正 '+act+'</span>'
+              :(e.wrongItems.length?'<span class="all-done-head">本场已全部订正 ✓</span>':''))+
+      '</div>'+
+      (open?'<button class="del-exam" type="button" data-act="del-exam" data-id="'+e.id+'"'+
+        ' aria-label="删除第'+e.seq+'场考试及其下全部错题">'+ICON.trash+'<span>删除本场</span></button>':'')+
+      '<div class="exam-head-info right" aria-hidden="true">'+
+        '<span class="exam-rate-quick">'+rate+'</span><span class="exam-chevron">⌄</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="exam-metrics">'+
+      '<div class="exam-metric"><span class="k">作答</span><span class="v">'+(st.processed||0)+'</span></div>'+
+      '<div class="exam-metric"><span class="k">错题</span><span class="v">'+(st.wrong||0)+'</span></div>'+
+      '<div class="exam-metric"><span class="k">正确率</span><span class="v">'+rate+'</span></div>'+
+      '<div class="exam-metric"><span class="k">用时</span><span class="v">'+fmtTime(e.elapsedMs)+'</span></div>'+
+    '</div>'+
+    '<div class="rate-track" aria-hidden="true"><div class="rate-fill" style="width:'+rateW+'%"></div></div>'+
+    sub+
+  '</section>';
+}
 function renderWrongbook(){
-  const list=activeWrongNos();
-  if(!list.length){
-    return '<div class="card empty-state"><div class="empty-icon" aria-hidden="true">✓</div>'+
-      '<h3>错题本还是空的</h3><p>练习中答错的题目会自动收录到这里，方便集中复习。</p>'+
-      '<button class="btn btn-primary" data-act="go-home">去练习</button></div>';
+  const active=activeWrongCount(), nos=activeWrongNos();
+  const head='<div class="wb-head"><div><h2>错题本 · '+active+' 题待订正</h2>'+
+    '<p>按考试场次归档 · 共 '+state.exams.length+' 场 · 数据实时派生自考试记录</p></div>'+
+    '<div class="wb-head-actions">'+
+      '<button class="btn btn-soft fav-head-btn'+(favCount()>0?' is-fav':'')+'" type="button" data-act="go-favorites"'+
+        ' aria-label="查看我的收藏，当前'+favCount()+'题">'+ICON.star+'收藏<span class="fav-head-count"> '+favCount()+'</span></button>'+
+      (active>0?'<button class="btn btn-primary" type="button" data-act="start-redo">重做错题 ('+nos.length+')</button>':'')+
+    '</div></div>';
+  if(!state.exams.length){
+    return head+'<div class="card empty-state">'+artBlank()+
+      '<h3>还没有考试记录</h3><p>完成一次交卷后，这里会按场次归档你的错题。</p>'+
+      '<button class="btn btn-primary" data-act="go-home">开始一次练习</button></div>';
   }
-  return '<div>'+
-    '<div class="wb-head"><div><h2>错题本 · '+list.length+' 题待订正</h2>'+
-      '<p>点击卡片复习；在「重做错题」会话中答对即可移出（5 秒内可撤销）。</p></div>'+
-      '<button class="btn btn-primary" data-act="start-redo">重做错题 ('+list.length+')</button></div>'+
-    '<div id="grid" class="grid" aria-live="off"></div><div id="gridEmpty" class="hidden"></div></div>';
+  // 首次进入：默认展开「最新且有未订正错题」的一场；不持久化
+  if(state.wbExpanded===null && !state.wbAutoPicked){
+    const cand=state.exams.find(e=>examActiveCount(e)>0) || state.exams[0];
+    state.wbExpanded=cand?cand.id:null;
+  }
+  state.wbAutoPicked=true;
+  const pageSize=10;
+  const expandedIdx=state.exams.findIndex(e=>e.id===state.wbExpanded);
+  if(expandedIdx>=pageSize*state.wbPage) state.wbPage=Math.floor(expandedIdx/pageSize)+1;
+  const visible=state.exams.slice(0,pageSize*state.wbPage);
+  const more=(visible.length<state.exams.length)
+    ? '<button class="btn btn-soft load-more" type="button" data-act="wb-more">加载更多考试（还有 '+(state.exams.length-visible.length)+' 场）</button>' : '';
+  const notice=(active===0)?'<div class="wb-notice">当前没有待订正错题，考试记录仍可展开查看。</div>':'';
+  return head+notice+'<div class="exam-list" id="examList" tabindex="-1">'+visible.map(renderExamCard).join("")+'</div>'+more;
 }
 
-/* ==================== 弹窗 / Toast ==================== */
-function openModal(html){
+/* ==================== 15b. 收藏视图（题号级聚合，独立路由） ==================== */
+function renderFavItem(it){
+  const no=it.no, q=QUIZ_BY_NO[no];
+  const source=(it.srcKind==="exam" && it.src)
+    ? '<span class="exam-badge" style="font-size:11px">第'+it.src.seq+'场</span>'+
+      '<span class="exam-time" style="font-size:11px">'+fmtDateTime(it.src.createdAt)+'</span>'
+    : '<span class="fav-src-note">'+(it.srcKind==="practicing"?"练习中收藏":"历史收藏 · 暂无错题记录")+'</span>';
+  const chip=it.srcKind!=="exam"
+    ? '<span class="fav-src-note">暂无错题记录</span>'
+    : (it.mastered?'<span class="done-chip"><span aria-hidden="true">✓</span> 已订正</span>'
+                  :'<span class="due-chip"><span aria-hidden="true">◆</span> 待订正</span>');
+  return '<article class="fav-item" data-fav-no="'+no+'">'+
+    '<div class="wb-item-top">'+
+      '<span class="qno-badge">'+no+'</span>'+source+
+      '<button class="fav-toggle" type="button" data-act="fav-toggle" data-no="'+no+'" aria-pressed="true"'+
+        ' aria-label="取消收藏第'+no+'题" title="取消收藏第'+no+'题">'+ICON.star+
+        '<span class="fav-label">已收藏</span><span class="fav-hover-label">取消收藏</span></button>'+
+    '</div>'+
+    '<div class="wb-item-stem">'+(q?escapeHtml(stemText(q)):"题目数据缺失")+'</div>'+
+    '<div class="wb-item-meta">累计答错 '+(it.wrongTimes?it.wrongTimes+" 次":"—")+' · '+chip+'</div>'+
+    '<div class="wb-item-actions"><button class="link-btn" type="button" data-act="start-redo-fav" data-no="'+no+'">只重做这一题</button></div>'+
+  '</article>';
+}
+function renderFavorites(){
+  const items=favItems(), n=items.length;
+  const head='<div class="wb-head"><div><h2>★ 收藏错题 · <span class="fav-title-count">'+n+'</span> 题</h2>'+
+    '<p>集中查看你标记的重点错题</p></div>'+
+    '<button class="btn btn-soft" type="button" data-act="go-wrongbook">返回错题本</button></div>';
+  if(!n){
+    return head+'<div class="card empty-state">'+artFav()+
+      '<h3>还没有收藏的错题</h3>'+
+      '<p>在错题卡或答题反馈中点一下星标，就能把要重点复习的题收进这里。</p>'+
+      '<button class="btn btn-primary" data-act="go-wrongbook">去错题本挑选题目</button></div>';
+  }
+  const limit=state.favPage||20;
+  const visible=items.slice(0,limit);
+  const more=(visible.length<items.length)
+    ? '<button class="btn btn-soft load-more" type="button" data-act="fav-more">加载更多收藏（还有 '+(items.length-visible.length)+' 条）</button>' : '';
+  return head+'<div class="fav-list" id="favList" tabindex="-1">'+visible.map(renderFavItem).join("")+'</div>'+more;
+}
+
+/* ==================== 16. 收藏切换 / 局部同步 ==================== */
+function updateFavCounts(){
+  const n=favCount();
+  const nav=document.querySelector(".nav-fav");
+  if(nav){
+    nav.classList.toggle("is-fav",n>0);
+    nav.setAttribute("aria-label","收藏错题，当前"+n+"题已收藏");
+    let b=nav.querySelector(".nav-fav-count");
+    if(n>0){
+      if(!b){ b=document.createElement("span"); b.className="nav-fav-count"; nav.appendChild(b); }
+      b.textContent=n; b.classList.remove("hidden");
+    }else if(b){ b.classList.add("hidden"); }
+  }
+  document.querySelectorAll(".fav-sublink").forEach(x=>{
+    x.classList.toggle("is-fav",n>0);
+    x.setAttribute("aria-label","我的收藏，当前"+n+"题");
+    const t=x.querySelector(".fav-sublink-text");
+    if(t) t.textContent="我的收藏 "+(n>0?n+" 题":"· 还没有收藏的题");
+  });
+  document.querySelectorAll(".fav-head-btn").forEach(x=>{
+    x.classList.toggle("is-fav",n>0);
+    x.setAttribute("aria-label","查看我的收藏，当前"+n+"题");
+    const t=x.querySelector(".fav-head-count"); if(t) t.textContent=" "+n;
+  });
+  document.querySelectorAll(".fav-title-count").forEach(x=>{ x.textContent=n; });
+}
+function applyFavButtonState(el,no){
+  const on=isFav(no);
+  el.classList.toggle("is-fav",on);
+  el.classList.toggle("is-off",!on);
+  el.setAttribute("aria-pressed",on?"true":"false");
+  const labelText=(on?"取消收藏第":"收藏第")+no+"题";
+  el.setAttribute("aria-label",labelText);
+  el.setAttribute("title",labelText);
+  const label=el.querySelector(".fav-text-btn-label");
+  if(label) label.textContent=on?"已收藏":"收藏这道题";
+}
+// 就地改属性、不替换节点：保留键盘焦点；data-no 覆盖跨场同题的所有星标
+function syncFav(no){
+  document.querySelectorAll('#app [data-act="fav-toggle"][data-no="'+no+'"]')
+    .forEach(x=>applyFavButtonState(x,no));
+  updateFavCounts();
+}
+function popStar(btn){
+  if(!btn) return;
+  btn.classList.remove("is-pop"); void btn.offsetWidth; btn.classList.add("is-pop");
+  setTimeout(()=>{ if(btn) btn.classList.remove("is-pop"); },220);
+}
+function toggleFav(no, btn){
+  no=+no;
+  if(!QUIZ_BY_NO[no]){ announce("该题目不存在，无法收藏"); return; }
+  const was=isFav(no);
+  const next=Object.assign({},state.favs);
+  if(was) delete next[no]; else next[no]={at:Date.now()};
+  store.set("favs",next);
+  let back=null; try{ back=JSON.parse(rawGet("favs")||"null"); }catch(e){}
+  const ok=isPlainObject(back) && Object.keys(back).length===Object.keys(next).length &&
+    Object.keys(next).every(k=>back[k] && back[k].at===next[k].at);
+  if(!ok){ showSaveError(); announce("保存失败，收藏未生效"); return; }
+  state.favs=next;
+  const msg=(was?"已取消收藏第":"已收藏第")+no+"题";
+  showToast(msg,{duration:2000});
+  announce(msg+"，当前共"+favCount()+"题已收藏");
+  if(state.route==="favorites" && was){
+    const card=document.querySelector('.fav-item[data-fav-no="'+no+'"]');
+    if(card){
+      const reduce=!!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      const remove=()=>{
+        const target=card.nextElementSibling||card.previousElementSibling||$("favList");
+        card.remove();
+        if(target && target.focus) target.focus();
+        if(favCount()===0) render();
+      };
+      syncFav(no);
+      if(!reduce){ card.classList.add("is-removing"); setTimeout(remove,160); }
+      else remove();
+      return;
+    }
+  }
+  syncFav(no);
+  if(!was) popStar(btn);
+}
+
+/* ==================== 17. 删除操作 ==================== */
+function showSaveError(){ showToast("当前无法保存，刷新后可能丢失",{duration:4000}); }
+function focusExamList(){ const c=$("examList"); if(c) c.focus(); }
+function openDeleteWrongConfirm(examId,no,trigger){
+  const e=state.exams.find(x=>x.id===examId);
+  const w=e&&e.wrongItems.find(x=>x.no===no);
+  if(!e||!w) return;
+  openModal('<h2 class="title-with-icon">'+ICON.warn+'从错题本移除这道题？</h2>'+
+    '<p>确认移除<b>第 '+w.no+' 题</b>？仅从错题本移除，不影响你的作答记录与历史成绩。</p>'+
+    '<div class="modal-actions"><button class="btn btn-soft" type="button" data-act="close-modal" data-autofocus>取消</button>'+
+    '<button class="btn btn-danger" type="button" data-act="do-del-item" data-id="'+examId+'" data-no="'+no+'">删除</button></div>',
+    trigger,"modal-del");
+}
+function deleteWrongItem(examId,no){
+  const e=state.exams.find(x=>x.id===examId); if(!e) return;
+  if(!e.wrongItems.some(w=>w.no===no)) return;
+  const snapshot=JSON.parse(JSON.stringify(state.exams));
+  const next=state.exams.map(x=> x.id===examId
+    ? Object.assign({},x,{wrongItems:x.wrongItems.filter(w=>w.no!==no)}) : x);
+  if(!persistExams(next)){ showSaveError(); announce("保存失败，删除未生效"); return; }
+  updateHeaderCounts();
+  if(state.route==="wrongbook"){ render(); focusExamList(); }
+  showToast("已从错题本移除第 "+no+" 题",{undo:()=>{
+    if(!persistExams(snapshot)){ announce("撤销失败，请重试"); return; }
+    updateHeaderCounts(); if(state.route==="wrongbook"){ render(); focusExamList(); }
+    announce("已撤销删除第"+no+"题，当前待订正"+activeWrongCount()+"题");
+  },duration:5000});
+  announce("已删除第"+no+"题错题，当前待订正"+activeWrongCount()+"题");
+}
+function openDeleteExamConfirm(examId,trigger){
+  const e=state.exams.find(x=>x.id===examId); if(!e) return;
+  const act=examActiveCount(e), total=e.wrongItems.length;
+  const label="第 "+e.seq+" 场（"+fmtDateTime(e.createdAt)+"）";
+  const body=total
+    ? '将删除「'+label+'」及其下全部 '+total+' 道错题'+(act?'（含 '+act+' 道待订正）':'')+'。历史做题统计不会被修改。'
+    : '将删除「'+label+'」。该场没有错题，历史做题统计不会被修改。';
+  openModal('<div class="danger-banner">此操作不可撤销</div>'+
+    '<h2 class="title-with-icon">'+ICON.warn+'删除「第 '+e.seq+' 场」？</h2>'+
+    '<p>'+body+'</p>'+
+    '<div class="modal-actions"><button class="btn btn-soft" type="button" data-act="close-modal" data-autofocus>取消</button>'+
+    '<button class="btn btn-danger" type="button" data-act="do-del-exam" data-id="'+examId+'">'+
+      (total?'删除本场全部 '+total+' 题':'删除本场')+'</button></div>',
+    trigger,"modal-del-exam");
+}
+function deleteExam(examId){
+  const e=state.exams.find(x=>x.id===examId); if(!e) return;
+  const next=state.exams.filter(x=>x.id!==examId);
+  if(!persistExams(next)){ showSaveError(); announce("保存失败，删除未生效"); return; }
+  if(state.wbExpanded===examId) state.wbExpanded=null;
+  updateHeaderCounts();
+  if(state.route==="wrongbook"){ render(); focusExamList(); }
+  announce("已删除第"+e.seq+"场考试，当前待订正"+activeWrongCount()+"题");
+}
+
+/* ==================== 18. 弹窗 / Toast ==================== */
+function openModal(html, trigger, variant){
   const root=$("modalRoot");
-  root.innerHTML='<div class="modal-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">'+html+'</div></div>';
-  // 兼容：给无 id 的标题补上 aria-labelledby 目标
+  state.modalTrigger = trigger && document.body.contains(trigger) ? trigger : document.activeElement;
+  const cls="modal"+(variant?" "+variant:"");
+  root.innerHTML='<div class="modal-backdrop"><div class="'+cls+'" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">'+html+'</div></div>';
   const h=root.querySelector(".modal h2"); if(h && !h.id) h.id="modalTitle";
   root.querySelector(".modal-backdrop").addEventListener("click",e=>{ if(e.target.classList.contains("modal-backdrop")) closeModal(); });
   state.modalOpen=true;
+  const app=$("app"); if(app) app.style.pointerEvents="none";
   (root.querySelector("[data-autofocus]")||root.querySelector(".modal")).focus();
 }
-function closeModal(){ const root=$("modalRoot"); if(root) root.innerHTML=""; state.modalOpen=false; }
-function openHelp(){
-  const legend=Object.keys(STATUS).map(k=>{
-    const bg={unanswered:"var(--s-unanswered-bg)",correct:"var(--s-correct-bg)",wrong:"var(--s-wrong-bg)",skipped:"var(--s-skip-bg)",due:"var(--s-due-bg)"}[k];
-    const fg={unanswered:"var(--s-unanswered-fg)",correct:"var(--s-correct-fg)",wrong:"var(--s-wrong-fg)",skipped:"var(--s-skip-fg)",due:"var(--s-due-fg)"}[k];
-    const mk={unanswered:"var(--s-unanswered-mark)",correct:"var(--s-correct-mark)",wrong:"var(--s-wrong-mark)",skipped:"var(--s-skip-mark)",due:"var(--s-due-mark)"}[k];
-    return '<div class="legend-row"><span class="legend-chip" style="background:'+bg+';color:'+fg+'"><span style="color:'+mk+'">'+STATUS[k].icon+'</span> '+STATUS[k].label+'</span>'+
-      '<span style="color:var(--ink-faint);font-size:12px">'+(k==="unanswered"?"尚未作答":k==="correct"?"整题全对":k==="wrong"?"任一空错":k==="skipped"?"主动跳过":"错题本待订正")+'</span></div>';
-  }).join("");
-  openModal('<h2>帮助说明</h2>'+
-    '<p><b>状态图例（颜色 + 图标 + 文字三重编码）</b></p><div class="legend">'+legend+'</div>'+
-    '<p><b>快捷键</b>（焦点不在输入框时生效）</p>'+
-    '<div class="rule-box"><span class="kbd">N</span> 定位下一未答　<span class="kbd">J</span> / <span class="kbd">K</span> 下/上一题<br>'+
-    '<span class="kbd">?</span> 打开帮助　<span class="kbd">Esc</span> 收起题卡 / 关闭弹窗</div>'+
-    '<p style="margin-top:12px"><b>判题规则</b></p>'+
-    '<div class="rule-box">忽略空白与中英文标点、统一小写后比较；支持完全一致、包含关系（长度差不超过 30%）以及 80% 字符重合率容错。整题所有空全对才算答对，任一空错即本题答错。</div>'+
-    '<p style="margin-top:12px"><b>跳过说明</b></p>'+
-    '<div class="rule-box">跳过会计入进度，但不计入正确率分母；交卷前随时可回到该题重新作答。</div>'+
-    '<div class="modal-actions"><button class="btn btn-primary" data-act="close-modal" data-autofocus>知道了</button></div>');
+function closeModal(){
+  const root=$("modalRoot"); root.innerHTML=""; state.modalOpen=false;
+  const app=$("app"); if(app) app.style.pointerEvents="";
+  const t=state.modalTrigger; state.modalTrigger=null;
+  if(t && document.body.contains(t)){ try{ t.focus(); }catch(e){} }
+  else { const c=$("examList")||$("favList"); if(c) c.focus(); }
 }
+// 个人数据面板：头像与 ? 共用同一面板；旧 openHelp 内容整体移除
+function openProfile(trigger){
+  const c=cumulativeStats(), best=bestRate(), recent=state.exams.slice(0,3);
+  const cell=(ico,label,value,cls,extra)=>'<div class="pstat'+(cls?' '+cls:'')+'">'+
+    '<span class="ico">'+ico+'</span><span class="v">'+value+'</span><span class="k">'+label+'</span>'+(extra||'')+'</div>';
+  const rateBar='<div class="mini-track" aria-hidden="true"><div class="mini-fill" style="width:'+(c.rate||0)+'%"></div></div>';
+  const recentHtml=recent.length? '<div class="recent-block"><div class="recent-title">最近考试</div>'+
+    recent.map(e=>{
+      const rt=(e.stats&&typeof e.stats.rate==="number")?e.stats.rate:null;
+      return '<button class="recent-item" type="button" data-act="open-exam" data-id="'+e.id+'"'+
+        ' aria-label="查看第'+e.seq+'场错题，正确率'+(rt==null?"暂无":rt+"%")+'">'+
+        '<span class="exam-badge">第'+e.seq+'场</span>'+
+        '<span class="rt">'+fmtDateTime(e.createdAt)+'</span>'+
+        '<span class="rtrack" aria-hidden="true"><span class="rfill" style="display:block;width:'+(rt||0)+'%"></span></span>'+
+        '<span class="rr">'+(rt==null?"—":rt+"%")+'</span><span class="rchev" aria-hidden="true">⌄</span></button>';
+    }).join("")+'</div>' : '';
+  const html='<div class="profile-head"><span class="profile-av">'+ICON.avatar+'</span>'+
+      '<div><div class="profile-name">入团积极分子</div><div class="profile-sub">坚持刷题，稳步进步</div></div>'+
+      '<button class="modal-x" type="button" data-act="close-modal" aria-label="关闭个人数据面板">×</button></div>'+
+    (best!=null? '<div class="best-row">'+ICON.trophy+'<span>历史最高正确率</span><b>'+best+'%</b></div>':'')+
+    '<div class="profile-grid">'+
+      cell(ICON.pen,"累计做题",c.processed,"")+
+      cell(ICON.clock,"累计用时",fmtDuration(c.elapsed),"")+
+      cell(ICON.target,"正确率",c.rate==null?"—":c.rate+"%","",rateBar)+
+      cell(ICON.paper,"考试次数",state.exams.length,"")+
+      cell(ICON.bookmark,"当前错题",activeWrongCount(),"is-danger")+
+      cell(ICON.check,"已订正",masteredCount(),"is-good")+
+    '</div>'+
+    recentHtml+
+    '<div class="data-note">数据口径：累计做题 / 用时 / 正确率来自最近 20 轮历史归档；考试次数 / 当前错题 / 已订正来自最近 20 场考试归档。删除考试不会修改历史成绩。</div>'+
+    '<div class="modal-actions"><button class="btn btn-primary btn-block" type="button" data-act="close-modal" data-autofocus>知道了</button></div>';
+  openModal(html, trigger || document.activeElement, "modal-profile");
+}
+function openHelp(trigger){ openProfile(trigger); }   // 兼容别名，旧帮助内容已移除
 function openDispute(no){
   const q=QUIZ_BY_NO[no];
   openModal('<h2>判题存疑 · 第'+no+'题</h2><p>本题标准答案：'+
@@ -995,15 +1732,15 @@ let toastTimer=null;
 function showToast(msg, opts){
   opts=opts||{}; const el=$("toast"); if(!el) return;
   clearTimeout(toastTimer);
-  el.innerHTML='<span>'+escapeHtml(msg)+'</span>'+(opts.undo?'<button id="undoBtn">撤销</button>':'');
+  el.innerHTML='<span>'+escapeHtml(msg)+'</span>'+(opts.undo?'<button id="undoBtn" type="button">撤销</button>':'');
   el.classList.add("show");
   const ub=$("undoBtn"); if(ub) ub.onclick=()=>{ try{opts.undo();}finally{ el.classList.remove("show"); } };
   toastTimer=setTimeout(()=>{ el.classList.remove("show"); }, opts.duration||3000);
 }
 
-/* ==================== 事件区 ==================== */
+/* ==================== 19. 事件区 ==================== */
 function handleAction(act, el){
-  const no=+(el.dataset.no||0);
+  const no=+(el.dataset.no||0), id=el.dataset.id||"";
   switch(act){
     case "mode":
       state.selectedMode=+el.dataset.n;
@@ -1012,12 +1749,27 @@ function handleAction(act, el){
     case "start": startMode(state.selectedMode); break;
     case "continue": if(state.session){ state.route="practice"; go("#/practice"); } break;
     case "go-home": go("#/home"); break;
-    case "go-wrongbook": reviewOpen=null; go("#/wrongbook"); break;
+    case "go-wrongbook":
+      reviewReset(); go("#/wrongbook"); break;
+    case "open-exam":
+      state.wbExpanded=id; state.wbAutoPicked=true;
+      closeModal(); go("#/wrongbook"); render();
+      announce("已定位到第"+((state.exams.find(e=>e.id===id)||{}).seq||"")+"场错题");
+      break;
+    case "wb-more": state.wbPage++; render(); break;
+    case "go-favorites": go("#/favorites"); break;
+    case "fav-toggle": case "toggle-fav": toggleFav(no,el); break;
+    case "fav-more": state.favPage=(state.favPage||20)+20; render(); break;
+    case "start-redo-fav": case "redo-fav":
+      // 收藏是题目级标记，允许重做已订正题，不经过 isActiveWrong 过滤
+      if(newSession("redo",[no])){ go("#/practice"); announce("已开始重做第"+no+"题"); }
+      break;
     case "start-redo": startRedo(); break;
     case "start-redo-one":
-      if(isActiveWrong(no)){ newSession("redo",[no]); go("#/practice"); announce("已开始重做第"+no+"题"); }
+      if(isActiveWrong(no)){ if(newSession("redo",[no])){ go("#/practice"); announce("已开始重做第"+no+"题"); } }
       break;
-    case "help": openHelp(); break;
+    case "profile": openProfile(el); break;
+    case "help": openProfile(el); break;
     case "dispute": openDispute(no); break;
     case "close-guide": state.prefs.guideSeen=true; savePrefs(); if(el.closest(".guide-wrap")) el.closest(".guide-wrap").remove(); break;
     case "close-modal": closeModal(); break;
@@ -1028,7 +1780,27 @@ function handleAction(act, el){
       if(state.session){ state.session.filter.query=""; saveSessionSoon(); const si=$("searchInput"); if(si) si.value=""; renderGrid(); }
       break;
     case "toggle-card": toggleCard(no); break;
-    case "toggle-review": toggleReview(no); break;
+    case "toggle-exam":
+      state.wbExpanded = state.wbExpanded===id ? null : id;
+      state.wbAutoPicked=true; render();
+      break;
+    case "del-wrong-item": openDeleteWrongConfirm(id,no,el); break;
+    case "do-del-item": {
+      closeModal();
+      const uid=id+":"+no;
+      if(window.__removingUid===uid) break;
+      window.__removingUid=uid;
+      let card=null;
+      document.querySelectorAll(".wb-item").forEach(x=>{ if(x.dataset && x.dataset.uid===uid) card=x; });
+      const reduce=!!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      if(card && !reduce){
+        card.classList.add("is-removing");
+        setTimeout(()=>{ window.__removingUid=null; deleteWrongItem(id,no); },160);
+      }else{ window.__removingUid=null; deleteWrongItem(id,no); }
+      break;
+    }
+    case "del-exam": openDeleteExamConfirm(id,el); break;
+    case "do-del-exam": closeModal(); deleteExam(id); break;
     case "submit-card": submitCard(no); break;
     case "skip-card": skipCard(no); break;
     case "redo-card": redoCard(no); break;
@@ -1046,12 +1818,7 @@ function handleAction(act, el){
     }
   }
 }
-function startRedoNos(nos){
-  const fresh=nos.filter(isActiveWrong);
-  if(!fresh.length){ announce("这些错题已订正"); return; }
-  newSession("redo", fresh); go("#/practice");
-  announce("已开始重做 "+fresh.length+" 道错题");
-}
+function reviewReset(){ state.wbExpanded=null; state.wbAutoPicked=false; state.wbPage=1; }
 
 document.addEventListener("click", e=>{
   const modalEl=e.target.closest("#modalRoot [data-act]");
@@ -1060,7 +1827,6 @@ document.addEventListener("click", e=>{
   if(!el) return;
   handleAction(el.dataset.act, el);
 });
-
 document.addEventListener("input", e=>{
   if(e.target.matches(".blank-input")){
     const no=+(e.target.dataset.no||0), i=+(e.target.dataset.blank||0);
@@ -1074,8 +1840,6 @@ document.addEventListener("input", e=>{
     renderGrid(); saveSessionSoon();
   }
 });
-
-// 键盘：卡片展开 / 输入回车 / 全局快捷键 / 弹窗焦点陷阱
 document.addEventListener("keydown", e=>{
   if(state.modalOpen){
     if(e.key==="Escape"){ e.preventDefault(); closeModal(); return; }
@@ -1107,7 +1871,7 @@ document.addEventListener("keydown", e=>{
   const t=e.target;
   const inField=t && (t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable);
   if(inField) return;
-  if(e.key==="?"||(e.key==="/"&&e.shiftKey)){ e.preventDefault(); openHelp(); return; }
+  if(e.key==="?"||(e.key==="/"&&e.shiftKey)){ e.preventDefault(); openProfile(); return; }
   if(state.route!=="practice"||!state.session) return;
   const k=(e.key||"").toLowerCase();
   if(k==="n"){ e.preventDefault(); nextCard(); }
@@ -1115,13 +1879,12 @@ document.addEventListener("keydown", e=>{
   else if(k==="k"){ e.preventDefault(); moveCard(-1); }
 });
 
-/* ==================== 启动 ==================== */
+/* ==================== 20. 启动 ==================== */
 routeFromHash();
 if(!location.hash){
   location.replace(state.session ? "#/practice" : "#/home");
   routeFromHash();
 }
-// 刷新结果页时从最近归档恢复快照，避免出现空白结果
 if(state.route==="result" && !state.result && state.history.length){
   const h=state.history[0], st=h.stats || sessionStats({queue:h.queue||[],answers:h.answers||{}});
   let corrected=0, still=0;
@@ -1131,8 +1894,13 @@ if(state.route==="result" && !state.result && state.history.length){
   state.result={mode:h.mode,queue:h.queue||[],answers:h.answers||{},elapsedMs:h.elapsedMs||0,
     stats:st,corrected,still,endedAt:h.endedAt};
 }
+if(state.route==="wrongbook" && !location.hash){ reviewReset(); }
 render();
 startTicker();
+if(migrationCount>0){
+  showToast("已清空 "+migrationCount+" 道旧版错题，现在按考试场次重新记录",{duration:4000});
+  announce("已清空 "+migrationCount+" 道旧版错题，现在按考试场次重新记录");
+}
 </script>
 </body>
 </html>
